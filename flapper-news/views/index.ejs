@@ -28,55 +28,52 @@
   </div>
   <script type="text/ng-template" id="/home.html">
     <div class="page-header">
-      <h1>Flapper News</h1>
+      <h1>Travel notebook</h1>
     </div>
-    <div ng-repeat="post in posts|orderBy:order:reverse">
+    <div ng-repeat="trip in trips|orderBy:order:reverse">
       <span style="font-size:20px; margin-left:10px;">
-        <a class="title" ng-show="post.description" <a href="#/posts/{{post._id}}">>
-          {{post.name}}
+        <a class="title" ng-show="trip.description" <a href="#/trips/{{trip._id}}">>
+          {{trip.name}}
         </a>
-        <span class="title" ng-hide="post.description">
-          {{post.name}}
+        <span class="title" ng-hide="trip.description">
+          {{trip.name}}
         </span>
-        <span class="date" style="font-size:15px">{{post.date | amCalendar}}</span>
+        <span class="date" style="font-size:15px">{{trip.date | amCalendar}}</span>
       </span>
     </div>
 
     <ul class="nav nav-pills">
       <li ng-class="{'active': order=='date'"><a href="#" ng-click="setOrder('date', reverse=!reverse)">Date</a></li>
-      <li  ng-class="{'active': order=='name'}"><a href="#" ng-click="setOrder('name', reverse=!reverse)">Post</a></li>
+      <li  ng-class="{'active': order=='name'}"><a href="#" ng-click="setOrder('name', reverse=!reverse)">Trip</a></li>
     </ul>
 
     <div ng-hide="isLoggedIn()">
-      <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
+      <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a trip.</h3>
     </div>
 
-    <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
-      <h3>Add a new post</h3>
+    <form ng-submit="addTrip()" ng-show="isLoggedIn()" style="margin-top:30px;">
+      <h3>Add a new trip</h3>
       <div class="form-group">
         <input type="text" class="form-control" placeholder="Title" ng-model="name"></input>
       </div>
       <div class="form-group">
         <input type="text" class="form-control" placeholder="Link" ng-model="description"></input>
       </div>
-      <button type="submit" class="btn btn-primary">Post</button>
+      <button type="submit" class="btn btn-primary">Add Trip</button>
     </form>
   </script>
 
-  <script type="text/ng-template" id="/posts.html">
+  <script type="text/ng-template" id="/trips.html">
     <div class="page-header">
       <h3>
-        <a ng-show="post.description" href="{{post.description}}">
-          {{post.name}}
+        <a ng-show="trip.description" href="{{trip.description}}">
+          {{trip.description}}
         </a>
-        <span ng-hide="post.description">
-          {{post.name}}
-        </span>
       </h3>
     </div>
 
     <form ng-submit="returnHome()">
-      <button type="submit" class="btn btn-primary">Back to Post</button>
+      <button type="submit" class="btn btn-primary">Back to home</button>
     </form>
 
   </script>

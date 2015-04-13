@@ -4,7 +4,7 @@ var passport = require('passport');
 var jwt = require('express-jwt');
 
 var router = express.Router();
-var Post = mongoose.model('Post');
+var Trip = mongoose.model('Trip');
 var User = mongoose.model('User');
 
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
@@ -17,40 +17,40 @@ router.get('/', function(req, res, next) {
 module.exports = router;
 
 
-router.get('/posts', function(req, res, next) {
-  Post.find(function(err, posts){
+router.get('/trips', function(req, res, next) {
+  Trip.find(function(err, trips){
     if(err){ return next(err); }
 
-    res.json(posts);
+    res.json(trips);
   });
 });
 
-router.post('/posts', auth, function(req, res, next) {
-  var post = new Post(req.body);
-  post.date = Date.now();
+router.post('/trips', auth, function(req, res, next) {
+  var trip = new Trip(req.body);
+  trip.date = Date.now();
 
-  post.save(function(err, post){
+  trip.save(function(err, trip){
     if(err){ return next(err); }
 
-    res.json(post);
+    res.json(trip);
   });
 });
 
-router.param('post', function(req, res, next, id) {
-  var query = Post.findById(id);
+router.param('trip', function(req, res, next, id) {
+  var query = Trip.findById(id);
 
-  query.exec(function (err, post){
+  query.exec(function (err, trip){
     if (err) { return next(err); }
-    if (!post) { return next(new Error('can\'t find post')); }
+    if (!trip) { return next(new Error('can\'t find trip')); }
 
-    req.post = post;
+    req.trip = trip;
     return next();
   });
 });
 
-router.get('/posts/:post', function(req, res, next) {
+router.get('/trips/:trip', function(req, res, next) {
   //do nothing
-  res.json(req.post);
+  res.json(req.trip);
 
 });
 

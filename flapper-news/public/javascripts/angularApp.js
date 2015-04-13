@@ -51,28 +51,28 @@ app.factory('auth', ['$http', '$window', function($http, $window){
   return auth;
 }])
 
-app.factory('posts', ['$http', 'auth', function($http, auth){
+app.factory('trips', ['$http', 'auth', function($http, auth){
 	  var o = {
-	    posts: []
+	    trips: []
 	  };
 
 	  o.getAll = function() {
-	    return $http.get('/posts').success(function(data){
-	      angular.copy(data, o.posts);
+	    return $http.get('/trips').success(function(data){
+	      angular.copy(data, o.trips);
 	    });
 	  };
 
 	  
-	  o.create = function(post) {
-		return $http.post('/posts', post, {
+	  o.create = function(trip) {
+		return $http.post('/trips', trip, {
 			headers: {Authorization: 'Bearer '+auth.getToken()}
 		}).success(function(data){
-			o.posts.push(data);
+			o.trips.push(data);
 		});
 	  };
 
 	  o.get = function(id) {
-		return $http.get('/posts/' + id).then(function(res){
+		return $http.get('/trips/' + id).then(function(res){
 			return res.data;
 		});
 	  };
@@ -82,16 +82,16 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
 
 app.controller('MainCtrl', [
 '$scope',
-'posts',
+'trips',
 'auth',
-function($scope, posts, auth){
-	$scope.posts = posts.posts;
+function($scope, trips, auth){
+	$scope.trips = trips.trips;
 	$scope.isLoggedIn = auth.isLoggedIn;
 
 
-	$scope.addPost = function(){
+	$scope.addTrip = function(){
 	  if(!$scope.name || $scope.name === '') { return; }
-	  posts.create({
+	  trips.create({
 	    name: $scope.name,
 	    description: $scope.description,
 	  });
@@ -106,14 +106,14 @@ function($scope, posts, auth){
 
 }]);
 
-app.controller('PostsCtrl', [
+app.controller('TripsCtrl', [
 '$scope',
-'posts',
-'post',
+'trips',
+'trip',
 'auth',
 '$state',
-function($scope, posts, post, auth, $state){
-  	$scope.post = post;
+function($scope, trips, trip, auth, $state){
+  	$scope.trip = trip;
   	$scope.isLoggedIn = auth.isLoggedIn;
 
 	$scope.returnHome = function(){
@@ -165,19 +165,19 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: '/home.html',
       controller: 'MainCtrl',
       resolve: {
-	    postPromise: ['posts', function(posts){
-	      return posts.getAll();
+	    postPromise: ['trips', function(trips){
+	      return trips.getAll();
 	    }]
   	  }
     });
   
-  $stateProvider.state('posts', {
-	  url: '/posts/{id}',
-	  templateUrl: '/posts.html',
-	  controller: 'PostsCtrl',
+  $stateProvider.state('trips', {
+	  url: '/trips/{id}',
+	  templateUrl: '/trips.html',
+	  controller: 'TripsCtrl',
 	  resolve: {
-	    post: ['$stateParams', 'posts', function($stateParams, posts) {
-	      return posts.get($stateParams.id);
+	    trip: ['$stateParams', 'trips', function($stateParams, trips) {
+	      return trips.get($stateParams.id);
 	    }]
 	  }
 	});
