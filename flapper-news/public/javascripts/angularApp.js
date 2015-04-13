@@ -71,32 +71,10 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
 		});
 	  };
 
-	  o.upvote = function(post) {
-		return $http.put('/posts/' + post._id + '/upvote', null, {
-		    headers: {Authorization: 'Bearer '+auth.getToken()}
-		  }).success(function(data){
-		    post.upvotes += 1;
-		  });
-	  };
-
 	  o.get = function(id) {
 		return $http.get('/posts/' + id).then(function(res){
 			return res.data;
 		});
-	  };
-
-	  o.addComment = function(id, comment) {
-		return $http.post('/posts/' + id + '/comments', comment, {
-		    headers: {Authorization: 'Bearer '+auth.getToken()}
-		  });
-	  };
-
-	  o.upvoteComment = function(post, comment) {
-		return $http.put('/posts/' + post._id + '/comments/'+ comment._id + '/upvote', null, {
-		    headers: {Authorization: 'Bearer '+auth.getToken()}
-		  }).success(function(data){
-		    comment.upvotes += 1;
-		  });
 	  };
 	  		  
 	  return o;
@@ -112,18 +90,13 @@ function($scope, posts, auth){
 
 
 	$scope.addPost = function(){
-	  if(!$scope.title || $scope.title === '') { return; }
+	  if(!$scope.name || $scope.name === '') { return; }
 	  posts.create({
-	    title: $scope.title,
-	    link: $scope.link,
-	    author: 'user',
+	    name: $scope.name,
+	    description: $scope.description,
 	  });
-	  $scope.title = '';
-	  $scope.link = '';
-	};
-
-	$scope.incrementUpvotes = function(post) {
-	  posts.upvote(post);
+	  $scope.name = '';
+	  $scope.description = '';
 	};
 
 	$scope.setOrder = function (order, reverse) {
@@ -142,21 +115,6 @@ app.controller('PostsCtrl', [
 function($scope, posts, post, auth, $state){
   	$scope.post = post;
   	$scope.isLoggedIn = auth.isLoggedIn;
-
-	$scope.addComment = function(){
-	  if($scope.body === '') { return; }
-	  posts.addComment(post._id, {
-	    body: $scope.body,
-	    author: 'user',
-	  }).success(function(comment) {
-	    $scope.post.comments.push(comment);
-	  });
-	  $scope.body = '';
-	};
-
-	$scope.incrementUpvotes = function(comment){
-	  posts.upvoteComment(post, comment);
-	};
 
 	$scope.returnHome = function(){
 	  $state.go('home');

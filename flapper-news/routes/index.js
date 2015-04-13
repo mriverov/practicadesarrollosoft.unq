@@ -5,7 +5,6 @@ var jwt = require('express-jwt');
 
 var router = express.Router();
 var Post = mongoose.model('Post');
-var Comment = mongoose.model('Comment');
 var User = mongoose.model('User');
 
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
@@ -28,7 +27,6 @@ router.get('/posts', function(req, res, next) {
 
 router.post('/posts', auth, function(req, res, next) {
   var post = new Post(req.body);
-  post.author = req.payload.username;
   post.date = Date.now();
 
   post.save(function(err, post){
@@ -51,57 +49,9 @@ router.param('post', function(req, res, next, id) {
 });
 
 router.get('/posts/:post', function(req, res, next) {
-  req.post.populate('comments', function(err, post) {
-    if (err) { return next(err); }
+  //do nothing
+  res.json(req.post);
 
-    res.json(post);
-  });
-});
-
-router.put('/posts/:post/upvote', auth, function(req, res, next) {
-  req.post.upvote(function(err, post){
-    if (err) { return next(err); }
-
-    res.json(post);
-  });
-});
-
-router.param('comment', function(req, res, next, id) {
-  var query = Comment.findById(id);
-
-  query.exec(function (err, comment){
-    if (err) { return next(err); }
-    if (!comment) { return next(new Error('can\'t find comment')); }
-
-    req.comment = comment;
-    return next();
-  });
-});
-
-router.post('/posts/:post/comments', auth, function(req, res, next) {
-  var comment = new Comment(req.body);
-  comment.post = req.post;
-  comment.author = req.payload.username;
-  comment.date = Date.now();
-
-  comment.save(function(err, comment){
-    if(err){ return next(err); }
-
-    req.post.comments.push(comment);
-    req.post.save(function(err, post) {
-      if(err){ return next(err); }
-
-      res.json(comment);
-    });
-  });
-});
-
-router.put('/posts/:post/comments/:comment/upvote', auth, function(req, res, next) {
-  req.comment.upvote(function(err, post, comment){
-    if (err) { return next(err); }
-
-    res.json(comment);
-  });
 });
 
 router.post('/register', function(req, res, next){
