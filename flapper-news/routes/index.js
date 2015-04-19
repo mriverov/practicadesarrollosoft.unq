@@ -1,21 +1,21 @@
 var express = require('express');
-var mongoose = require('mongoose');
-var passport = require('passport');
-var jwt = require('express-jwt');
-
 var router = express.Router();
-var Trip = mongoose.model('Trip');
-var User = mongoose.model('User');
-
-var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-module.exports = router;
+var mongoose = require('mongoose');
+var passport = require('passport');
+var jwt = require('express-jwt');
 
+var Trip = mongoose.model('Trip');
+var User = mongoose.model('User');
+
+var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
+
+module.exports = router;
 
 router.get('/trips', function(req, res, next) {
   Trip.find(function(err, trips){
@@ -31,7 +31,6 @@ router.post('/trips', auth, function(req, res, next) {
 
   trip.save(function(err, trip){
     if(err){ return next(err); }
-
     res.json(trip);
   });
 });
@@ -54,6 +53,15 @@ router.get('/trips/:trip', function(req, res, next) {
 
 });
 
+router.post('/trips/:trip/remove', function(req, res, next) {
+  var query = Trip.findByIdAndRemove(req.trip);
+
+  query.exec(function (err){
+    if (err) { return next(err); }
+    return next();
+  });
+});
+
 router.post('/register', function(req, res, next){
   if(!req.body.username || !req.body.password){
     return res.status(400).json({message: 'Please fill out all fields'});
@@ -61,7 +69,7 @@ router.post('/register', function(req, res, next){
 
   var user = new User();
   user.username = req.body.username;
-  user.setPassword(req.body.password)
+  user.setPassword(req.body.password);
 
   user.save(function (err){
     if(err){ return next(err); }

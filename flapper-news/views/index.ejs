@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Flapper News</title>
+  <title>Travel Notebook</title>
   <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
@@ -28,59 +28,114 @@
   </div>
   <script type="text/ng-template" id="/home.html">
     <div class="page-header">
-      <h1>Travel notebook</h1>
-    </div>
-    <div ng-repeat="trip in trips|orderBy:order:reverse">
-      <span style="font-size:20px; margin-left:10px;">
-        <a class="title" ng-show="trip.description" <a href="#/trips/{{trip._id}}">>
-          {{trip.name}}
-        </a>
-        <span class="title" ng-hide="trip.description">
-          {{trip.name}}
-        </span>
-        <span class="date" style="font-size:15px">{{trip.date | amCalendar}}</span>
-      </span>
+      <h1>Travel Notebook</h1>
     </div>
 
-    <ul class="nav nav-pills">
-      <li ng-class="{'active': order=='date'"><a href="#" ng-click="setOrder('date', reverse=!reverse)">Date</a></li>
-      <li  ng-class="{'active': order=='name'}"><a href="#" ng-click="setOrder('name', reverse=!reverse)">Trip</a></li>
-    </ul>
-
-    <div ng-hide="isLoggedIn()">
-      <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a trip.</h3>
+    <div ng-hide="isLoggedIn()" class="alert alert-warning row">
+      <h4>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a trip.</h4>
     </div>
 
-    <form ng-submit="addTrip()" ng-show="isLoggedIn()" style="margin-top:30px;">
-      <h3>Add a new trip</h3>
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Title" ng-model="name"></input>
+    <table class="table">
+      <tr>
+        <th><a href="" ng-click="predicate = 'name'; reverse=false">Name</a></th>
+        <th><a href="" ng-click="predicate = 'dateOfDeparture'; reverse=!reverse">Departure</a></th>
+        <th><a href="" ng-click="predicate = 'arrivalDate'; reverse=!reverse">Arrival</a></th>
+        <th></th>
+      </tr>
+      <tr ng-repeat="trip in trips | orderBy:predicate:reverse">
+        <td>
+          <a href="#/trips/{{trip._id}}">
+            {{trip.name}}
+          </a>
+        </td>
+        <td>
+          <span> {{trip.dateOfDeparture | date: 'yyyy-MM-dd' }} </span>
+        </td>
+        <td>
+          <span> {{trip.arrivalDate | date: 'yyyy-MM-dd' }} </span>
+        </td>
+        <td>
+          <span ng-show="isLoggedIn()">
+              <a href='' ng-click="removeTrip(trip)"> <small>remove</small></a>
+          </span>
+        </td>
+      </tr>
+    </table>
+
+    <div class="panel panel-primary" ng-show="isLoggedIn()">
+      <div class="panel-body">
+        <h3 class="mg-t-sm">Add a new Trip</h3>
+        <form ng-submit="addTrip()">
+          <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Name"
+                   ng-model="name"/>
+          </div>
+          <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Description"
+                   ng-model="description"/>
+          </div>
+          <div class="form-group">
+            <label>Date of departure</label>
+            <input type="date"
+                   class="form-control"
+                   ng-model="dateOfDeparture"
+                   placeholder="yyyy-mm-dd"
+                   value=" {{ date | date : 'yyyy-MM-dd' }} "/>
+          </div>
+          <div class="form-group">
+            <label>Arrival date</label>
+            <input type="date"
+                   class="form-control"
+                   ng-model="arrivalDate"
+                   placeholder="yyyy-mm-dd"
+                   value=" {{ date | date : 'yyyy-MM-dd' }} "/>
+          </div>
+          <button type="submit" class="btn btn-primary pull-right">Add Trip</button>
+        </form>
       </div>
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Link" ng-model="description"></input>
-      </div>
-      <button type="submit" class="btn btn-primary">Add Trip</button>
-    </form>
+    </div>
   </script>
 
   <script type="text/ng-template" id="/trips.html">
     <div class="page-header">
       <h3>
-        <a ng-show="trip.description" href="{{trip.description}}">
-          {{trip.description}}
-        </a>
+          <span> {{trip.name}} </span>
+          <a class="btn btn-primary pull-right" href="/#/home">Back</a>
       </h3>
     </div>
 
-    <form ng-submit="returnHome()">
-      <button type="submit" class="btn btn-primary">Back to home</button>
+    <form class="form-horizontal">
+      <div class="form-group" ng-show="trip.description">
+        <label class="col-sm-2 control-label">Description:</label>
+        <div class="col-sm-10">
+          <p class="form-control-static">{{trip.description}}</p>
+        </div>
+      </div>
+      <div class="form-group" ng-show="trip.dateOfDeparture">
+        <label class="col-sm-2 control-label">From:</label>
+        <div class="col-sm-10">
+          <p class="form-control-static">{{trip.dateOfDeparture | date: 'yyyy/MM/dd' }}</p>
+        </div>
+      </div>
+      <div class="form-group" ng-show="trip.arrivalDate">
+        <label class="col-sm-2 control-label">To:</label>
+        <div class="col-sm-10">
+          <p class="form-control-static">{{trip.arrivalDate | date: 'yyyy/MM/dd' }}</p>
+        </div>
+      </div>
     </form>
-
+    <h3 class="text-center" style="margin-top: 30px;">
+      <small class="text-uppercase"> ... List of tourist destinations ... </small>
+    </h3>
   </script>
 
   <script type="text/ng-template" id="/register.html">
     <div class="page-header">
-      <h1>Flapper News</h1>
+      <h1>Travel Notebook</h1>
     </div>
 
     <div ng-show="error" class="alert alert-danger row">
@@ -102,7 +157,7 @@
 
   <script type="text/ng-template" id="/login.html">
     <div class="page-header">
-      <h1>Flapper News</h1>
+      <h1>Travel Notebook</h1>
     </div>
 
     <div ng-show="error" class="alert alert-danger row">
