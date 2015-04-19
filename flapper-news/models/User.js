@@ -4,6 +4,7 @@ var jwt = require('jsonwebtoken');
 
 var UserSchema = new mongoose.Schema({
   username: {type: String, lowercase: true, unique: true},
+  trips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trip' }],
   hash: String,
   salt: String
 });
@@ -30,7 +31,7 @@ UserSchema.methods.generateJWT = function() {
   return jwt.sign({
     _id: this._id,
     username: this.username,
-    exp: parseInt(exp.getTime() / 1000),
+    exp: parseInt(exp.getTime() / 1000)
   }, 'SECRET');
 };
 
