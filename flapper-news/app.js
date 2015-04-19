@@ -9,7 +9,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 
 require('./models/Trip');
-require('./models/Users');
+require('./models/User');
 require('./config/passport');
 
 mongoose.connect('mongodb://localhost/news');
