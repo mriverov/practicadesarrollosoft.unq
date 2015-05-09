@@ -17,8 +17,8 @@ var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
 module.exports = router;
 
-router.get('/trips', function(req, res, next) {
-  Trip.find(function(err, trips){
+router.get('/trips', auth, function(req, res, next) {
+  Trip.find({ author: req.payload.username }, function(err, trips){
     if(err){ return next(err); }
 
     res.json(trips);
@@ -27,6 +27,7 @@ router.get('/trips', function(req, res, next) {
 
 router.post('/trips', auth, function(req, res, next) {
   var trip = new Trip(req.body);
+  trip.author = req.payload.username;
   trip.date = Date.now();
 
   trip.save(function(err, trip){

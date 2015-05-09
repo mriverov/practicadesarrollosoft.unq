@@ -57,7 +57,9 @@ app.factory('trips', ['$http', 'auth', function($http, auth){
 	};
 
 	o.getAll = function() {
-		return $http.get('/trips').success(function(data){
+		return $http.get('/trips', {
+				headers: {Authorization: 'Bearer '+auth.getToken()}
+			}).success(function(data){
 			angular.copy(data, o.trips);
 		});
 	};
@@ -95,7 +97,8 @@ app.controller('MainCtrl', [ '$scope', '$window', 'trips', 'auth',
 				name: $scope.name,
 				description: $scope.description,
 				dateOfDeparture: $scope.dateOfDeparture,
-				arrivalDate: $scope.arrivalDate
+				arrivalDate: $scope.arrivalDate,
+				author: auth.currentUser,
 			});
 			$scope.name = '';
 			$scope.description = '';
@@ -156,15 +159,33 @@ app.controller('NavCtrl', [ '$scope', 'auth',
 
 app.config([ '$stateProvider', '$urlRouterProvider',
 	function($stateProvider, $urlRouterProvider) {
+		
 		$stateProvider.state('home', {
 		  url: '/home',
 		  templateUrl: '/home.html',
 		  controller: 'MainCtrl',
+		  onEnter: ['$state', 'auth', function($state, auth){
+			if(!auth.isLoggedIn()){
+			  $state.go('gettingStarted');
+			}
+		  }],
 		  resolve: {
 			postPromise: ['trips', function(trips){
 			  return trips.getAll();
 			}]
 		  }
+		  
+		});
+
+		$stateProvider.state('gettingStarted', {
+		  url: '/gettingStarted',
+		  templateUrl: '/gettingStarted.html',
+		  controller: 'NavCtrl',
+		  onEnter: ['$state', 'auth', function($state, auth){
+			if(auth.isLoggedIn()){
+			  $state.go('home');
+			}
+		  }]
 		});
 
 		$stateProvider.state('trips', {
@@ -200,6 +221,6 @@ app.config([ '$stateProvider', '$urlRouterProvider',
 		  }]
 		});
 
-		$urlRouterProvider.otherwise('home');
+		$urlRouterProvider.otherwise('gettingStarted');
 	}
 ]);

@@ -1,7 +1,15 @@
 <html>
 <head>
   <title>Travel Notebook</title>
-  <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Core CSS -->
+  <link href="/stylesheets/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link href="/stylesheets/stylish-portfolio.css" rel="stylesheet">
+
+  <!-- Custom Fonts -->
+  <link href="/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
@@ -10,11 +18,11 @@
   <script src="/javascripts/angularApp.js"></script>
   <style> .glyphicon-thumbs-up { cursor:pointer } </style>
 </head>
-<body ng-app="flapperNews">
+<body ng-app="flapperNews" id="top" class="header" >
   <nav class="navbar navbar-default" ng-controller="NavCtrl">
     <ul class="nav navbar-nav pull-right">
       <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
-      <li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
+      <li ng-show="isLoggedIn()"><a href="/#/gettingStarted" ng-click="logOut()">Log Out</a></li>
       <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
       <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
     </ul>
@@ -29,10 +37,6 @@
   <script type="text/ng-template" id="/home.html">
     <div class="page-header">
       <h1>Travel Notebook</h1>
-    </div>
-
-    <div ng-hide="isLoggedIn()" class="alert alert-warning row">
-      <h4>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a trip.</h4>
     </div>
 
     <table class="table">
@@ -176,5 +180,18 @@
       <button type="submit" class="btn btn-primary">Log In</button>
     </form>
   </script>
+
+  <script type="text/ng-template" id="/gettingStarted.html">
+    <div class="page-header">
+      <h1>Travel Notebook</h1>
+    </div>
+ 
+    <div class="text-vertical-center">
+      <h1>Start saving your travels now!</h1>
+      <h4>You need to <a href="/#/login" class="btn btn-dark btn-lg" >Log In</a> or <a href="/#/register" class="btn btn-dark btn-lg">Register</a> before you can add a trip.</h4>
+    </div>
+
+  </script>
+
 </body>
 </html>

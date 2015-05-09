@@ -5,7 +5,8 @@ var TripSchema = new mongoose.Schema({
   description: String,
   dateOfDeparture: { type: Date},
   arrivalDate: { type: Date},
-  date: { type: Date, default: Date.now }
+  date: { type: Date, default: Date.now },
+  author: String,
 });
 
 mongoose.model('Trip', TripSchema);
