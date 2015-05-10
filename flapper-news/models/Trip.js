@@ -7,6 +7,7 @@ var TripSchema = new mongoose.Schema({
   arrivalDate: { type: Date},
   date: { type: Date, default: Date.now },
   author: String,
+  cities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'City' }]
 });
 
 mongoose.model('Trip', TripSchema);
