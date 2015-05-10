@@ -3,9 +3,12 @@
   <title>Travel Notebook</title>
   <!-- Bootstrap Core CSS -->
   <!--<link href="/stylesheets/bootstrap.min.css" rel="stylesheet">-->
+  <!-- Google autocomplete -->
+  <script src='//maps.googleapis.com/maps/api/js?sensor=false&libraries=places'></script>
 
   <!-- bower:css -->
   <link rel="stylesheet" href="/javascripts/lib/bootstrap/dist/css/bootstrap.css" />
+  <link rel="stylesheet" href="/javascripts/lib/angular-google-places-autocomplete/src/autocomplete.css">
   <!-- endbower -->
 
   <!-- Custom CSS -->
@@ -15,6 +18,8 @@
   <link href="/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
   <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
+ 
+
   <!-- bower:js-->
   <script src="/javascripts/lib/jquery/dist/jquery.js"></script>
   <script src="/javascripts/lib/angular/angular.js"></script>
@@ -22,6 +27,9 @@
   <script src="/javascripts/lib/moment/moment.js"></script>
   <script src="/javascripts/lib/angular-moment/angular-moment.js"></script>
   <script src="/javascripts/lib/bootstrap/dist/js/bootstrap.js"></script>
+  <script src='/javascripts/lib/lodash/dist/lodash.compat.js'></script>
+  <script src='/javascripts/lib/angular-google-maps/dist/angular-google-maps.js'></script>
+  <script src="/javascripts/lib/angular-google-places-autocomplete/src/autocomplete.js"></script>
   <!-- endbower-->
 
   <script src="/javascripts/angularApp.js"></script>
@@ -141,8 +149,31 @@
         </div>
       </div>
     </form>
+
+    <div ng-repeat="city in trip.cities">   
+      <span style="font-size:20px; margin-left:10px;">
+        {{city.address}} -
+      </span>
+    </div>
+
+    <form ng-submit="addCity()" ng-show="isLoggedIn()" style="margin-top:30px;">
+        <h3>Add a City</h3>
+
+        <div class="form-group">
+          <input type="text" g-places-autocomplete ng-model="city" />
+        </div>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+
     <h3 class="text-center" style="margin-top: 30px;">
-      <small class="text-uppercase"> ... List of tourist destinations ... </small>
+      
+
+      <ui-gmap-google-map center="map.center" zoom='map.zoom'>
+        <<ui-gmap-marker ng-repeat="city in trip.cities" coords="city" idKey="city._id" icon="city.icon" >
+        </ui-gmap-marker>
+        <ui-gmap-polyline path="trip.cities" stroke="{color: '#dd4b39'}"> </ui-gmap-polyline>
+      </ui-gmap-google-map>
+
     </h3>
   </script>
 
@@ -197,6 +228,5 @@
     </div>
 
   </script>
-
 </body>
 </html>

@@ -12,6 +12,7 @@ var jwt = require('express-jwt');
 
 var Trip = mongoose.model('Trip');
 var User = mongoose.model('User');
+var City = mongoose.model('City');
 
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
@@ -48,10 +49,46 @@ router.param('trip', function(req, res, next, id) {
   });
 });
 
-router.get('/trips/:trip', function(req, res, next) {
-  //do nothing
-  res.json(req.trip);
+router.param('city', function(req, res, next, id) {
+  var query = City.findById(id);
 
+  query.exec(function (err, city){
+    if (err) { return next(err); }
+    if (!city) { return next(new Error('can\'t find city')); }
+
+    req.city = city;
+    return next();
+  });
+});
+
+router.get('/trips/:trip', function(req, res, next) {
+  req.trip.populate('cities', function(err, trip) {
+    if (err) { return next(err); }
+
+  console.log(trip);
+  res.json(trip);
+  console.log("AAAAAAAAAAAAAH");
+  console.log(res.json);
+  console.log(res.data);
+  
+ 
+  });
+});
+
+router.post('/trips/:trip/cities', auth, function(req, res, next) {
+  var city = new City(req.body);
+  city.trip = req.trip;
+
+  city.save(function(err, city){
+    if(err){ return next(err); }
+
+    req.trip.cities.push(city);
+    req.trip.save(function(err, trip) {
+      if(err){ return next(err); }
+
+      res.json(city);
+    });
+  });
 });
 
 router.post('/trips/:trip/remove', function(req, res, next) {

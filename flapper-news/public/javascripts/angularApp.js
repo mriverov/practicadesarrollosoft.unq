@@ -1,4 +1,4 @@
-var app = angular.module('flapperNews', ['ui.router', 'angularMoment']);
+var app = angular.module('flapperNews', ['ui.router', 'angularMoment', 'google.places','uiGmapgoogle-maps']);
 
 app.factory('auth', ['$http', '$window', function($http, $window){
    	var auth = {};
@@ -75,6 +75,8 @@ app.factory('trips', ['$http', 'auth', function($http, auth){
 
 	o.get = function(id) {
 		return $http.get('/trips/' + id).then(function(res){
+			console.log("BBBBBBBBH");
+			console.log(res.data);
 			return res.data;
 		});
 	};
@@ -82,6 +84,12 @@ app.factory('trips', ['$http', 'auth', function($http, auth){
 	o.remove = function(id) {
 		return $http.post('/trips/' + id + '/remove');
 	};
+
+	o.addCity = function(id, city) {
+		return $http.post('/trips/' + id + '/cities', city, {
+		    headers: {Authorization: 'Bearer '+auth.getToken()}
+		  });
+	  };
 
 	return o;
 }]);
@@ -124,6 +132,32 @@ app.controller('TripsCtrl', [ '$scope', 'trips', 'trip', 'auth', '$state',
 	function($scope, trips, trip, auth, $state){
 		$scope.trip = trip;
 		$scope.isLoggedIn = auth.isLoggedIn;
+
+		// Agrego esta logica para centrar el mapa siempre que hayan cuidades guardadas.
+		// Al tener varias cuidades necesitamos tener una de referencia para centrar el mapa.
+		if(!$scope.trip.cities || $scope.trip.cities=== '' || $scope.trip.cities.length<1) {
+			$scope.map = { center: { latitude: -34.6037232, longitude:  -58.38159310000003}, zoom: 8 }; 
+		}else{
+			var city = $scope.trip.cities.pop();
+			$scope.map = { center: { latitude: city.latitude, longitude:  city.longitude}, zoom: 8 }; 
+		}
+
+
+		$scope.addCity = function(){
+		  if($scope.city === '') { return;}
+
+		  trips.addCity(trip._id, {
+		    address: $scope.city.formatted_address,
+		    longitude: $scope.city.geometry.location.F, 
+		    latitude: $scope.city.geometry.location.A,
+		    icon: $scope.city.icon,
+		  }).success(function(city) {
+		    $scope.trip.cities.push(city);
+		  });
+
+		  $scope.city = '';
+		};
+
 	}
 ]);
 

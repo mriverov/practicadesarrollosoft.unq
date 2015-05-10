@@ -5,6 +5,7 @@
  */
 
 /* Global Styles */
+.angular-google-map-container { height: 400px; }
 
 html,
 body {
