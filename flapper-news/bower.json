@@ -23,6 +23,7 @@
     "angular-moment": "~0.10.1",
     "moment": "~2.10.0",
     "bootstrap": "~3.3.4",
-    "angular-google-maps": "~2.1.0"
+    "angular-google-maps": "~2.1.0",
+    "angular-google-places-autocomplete": "~0.2.4"
   }
 }
