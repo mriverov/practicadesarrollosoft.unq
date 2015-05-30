@@ -69,6 +69,10 @@ router.param('city', function(req, res, next, id) {
     });
 });
 
+router.get('/trips/:trip/city/:city', function(req, res, next) {
+    res.json(req.city);
+});
+
 router.post('/trips/:trip/cities', auth, function(req, res, next) {
     var city = new City(req.body);
     city.trip = req.trip;

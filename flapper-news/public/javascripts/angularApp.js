@@ -97,6 +97,19 @@ app.factory('trips', ['$http', 'auth', function($http, auth){
 		);
 	};
 
+	o.getCity = function(id, city) {
+		return $http.get('/trips/' + id+'/city/'+city).then(function(res){
+			return res.data;
+		});
+	};
+
+	return o;
+}]);
+
+app.factory('cities', ['$http', 'auth', function($http, auth){
+	var o = {
+	
+	};
 	return o;
 }]);
 
@@ -215,6 +228,14 @@ app.controller('TripsCtrl', [ '$scope',  '$window', 'trips', 'trip', 'auth',
 	}
 ]);
 
+
+app.controller('CityCtrl', [ '$scope', '$window', 'city', 'cities', 'auth',
+	function($scope, $window, city, auth){
+		$scope.city = city;
+		$scope.isLoggedIn = auth.isLoggedIn;
+	}
+]);
+
 app.config([ '$stateProvider', '$urlRouterProvider',
 	function($stateProvider, $urlRouterProvider) {
 		
@@ -278,6 +299,19 @@ app.config([ '$stateProvider', '$urlRouterProvider',
 			}
 		  }]
 		});
+
+		  $stateProvider.state('city', {
+		  url: '/trips/{id}/city/{city}',
+		  templateUrl: '/cityDescription.html',
+		  controller: 'CityCtrl',
+		  resolve: {
+			city: ['$stateParams', 'trips', function($stateParams,trips) {
+			  return trips.getCity($stateParams.id,$stateParams.city);
+			}]
+		  }
+		});
+
+		
 
 		$urlRouterProvider.otherwise('gettingStarted');
 	}
