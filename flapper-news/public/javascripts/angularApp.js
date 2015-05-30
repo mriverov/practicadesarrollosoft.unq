@@ -9,7 +9,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
 	auth.getToken = function (){
 	  return $window.localStorage['flapper-news-token'];
-	}
+	};
 
 	auth.isLoggedIn = function(){
 	  var token = auth.getToken();
@@ -49,202 +49,157 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 	};
 
   return auth;
-}])
+}]);
 
-app.factory('posts', ['$http', 'auth', function($http, auth){
-	  var o = {
-	    posts: []
-	  };
+app.factory('trips', ['$http', 'auth', function($http, auth){
+	var o = {
+		trips: []
+	};
 
-	  o.getAll = function() {
-	    return $http.get('/posts').success(function(data){
-	      angular.copy(data, o.posts);
-	    });
-	  };
+	o.getAll = function() {
+		return $http.get('/trips').success(function(data){
+			angular.copy(data, o.trips);
+		});
+	};
 
-	  
-	  o.create = function(post) {
-		return $http.post('/posts', post, {
+
+	o.create = function(trip) {
+		return $http.post('/trips', trip, {
 			headers: {Authorization: 'Bearer '+auth.getToken()}
 		}).success(function(data){
-			o.posts.push(data);
+			o.trips.push(data);
 		});
-	  };
+	};
 
-	  o.upvote = function(post) {
-		return $http.put('/posts/' + post._id + '/upvote', null, {
-		    headers: {Authorization: 'Bearer '+auth.getToken()}
-		  }).success(function(data){
-		    post.upvotes += 1;
-		  });
-	  };
-
-	  o.get = function(id) {
-		return $http.get('/posts/' + id).then(function(res){
+	o.get = function(id) {
+		return $http.get('/trips/' + id).then(function(res){
 			return res.data;
 		});
-	  };
+	};
 
-	  o.addComment = function(id, comment) {
-		return $http.post('/posts/' + id + '/comments', comment, {
-		    headers: {Authorization: 'Bearer '+auth.getToken()}
-		  });
-	  };
+	o.remove = function(id) {
+		return $http.post('/trips/' + id + '/remove');
+	};
 
-	  o.upvoteComment = function(post, comment) {
-		return $http.put('/posts/' + post._id + '/comments/'+ comment._id + '/upvote', null, {
-		    headers: {Authorization: 'Bearer '+auth.getToken()}
-		  }).success(function(data){
-		    comment.upvotes += 1;
-		  });
-	  };
-	  		  
-	  return o;
+	return o;
 }]);
 
-app.controller('MainCtrl', [
-'$scope',
-'posts',
-'auth',
-function($scope, posts, auth){
-	$scope.posts = posts.posts;
-	$scope.isLoggedIn = auth.isLoggedIn;
+app.controller('MainCtrl', [ '$scope', '$window', 'trips', 'auth',
+	function($scope, $window, trips, auth){
+		$scope.trips = trips.trips;
+		$scope.isLoggedIn = auth.isLoggedIn;
 
+		$scope.addTrip = function(){
+			if(!$scope.name || $scope.name === '') { return; }
+			trips.create({
+				name: $scope.name,
+				description: $scope.description,
+				dateOfDeparture: $scope.dateOfDeparture,
+				arrivalDate: $scope.arrivalDate
+			});
+			$scope.name = '';
+			$scope.description = '';
+			$scope.dateOfDeparture = '';
+			$scope.arrivalDate = '';
+		};
 
-	$scope.addPost = function(){
-	  if(!$scope.title || $scope.title === '') { return; }
-	  posts.create({
-	    title: $scope.title,
-	    link: $scope.link,
-	    author: 'user',
-	  });
-	  $scope.title = '';
-	  $scope.link = '';
-	};
+		$scope.predicate = '-name';
 
-	$scope.incrementUpvotes = function(post) {
-	  posts.upvote(post);
-	};
+		$scope.removeTrip = function(trip){
+			var deleteTrip = $window.confirm('Are you sure you want to delete?');
+			if(deleteTrip){
+				trips.remove(trip._id);
+				var _trip = $scope.trips.indexOf(trip);
+				$scope.trips.splice(_trip, 1);
+			}
+		}
 
-	$scope.setOrder = function (order, reverse) {
-        $scope.order = order;
-        $scope.reverse = reverse; 
-    };
-
-}]);
-
-app.controller('PostsCtrl', [
-'$scope',
-'posts',
-'post',
-'auth',
-'$state',
-function($scope, posts, post, auth, $state){
-  	$scope.post = post;
-  	$scope.isLoggedIn = auth.isLoggedIn;
-
-	$scope.addComment = function(){
-	  if($scope.body === '') { return; }
-	  posts.addComment(post._id, {
-	    body: $scope.body,
-	    author: 'user',
-	  }).success(function(comment) {
-	    $scope.post.comments.push(comment);
-	  });
-	  $scope.body = '';
-	};
-
-	$scope.incrementUpvotes = function(comment){
-	  posts.upvoteComment(post, comment);
-	};
-
-	$scope.returnHome = function(){
-	  $state.go('home');
 	}
+]);
 
-}]);
+app.controller('TripsCtrl', [ '$scope', 'trips', 'trip', 'auth', '$state',
+	function($scope, trips, trip, auth, $state){
+		$scope.trip = trip;
+		$scope.isLoggedIn = auth.isLoggedIn;
+	}
+]);
 
-app.controller('AuthCtrl', [
-'$scope',
-'$state',
-'auth',
-function($scope, $state, auth){
-	$scope.user = {};
+app.controller('AuthCtrl', [ '$scope', '$state', 'auth',
+	function($scope, $state, auth){
+		$scope.user = {};
 
-	$scope.register = function(){
-		auth.register($scope.user).error(function(error){
-		  $scope.error = error;
-		}).then(function(){
-		  $state.go('home');
+		$scope.register = function(){
+			auth.register($scope.user).error(function(error){
+			  $scope.error = error;
+			}).then(function(){
+			  $state.go('home');
+			});
+		};
+
+		$scope.logIn = function(){
+			auth.logIn($scope.user).error(function(error){
+			  $scope.error = error;
+			}).then(function(){
+			  $state.go('home');
+			});
+		};
+	}
+]);
+
+app.controller('NavCtrl', [ '$scope', 'auth',
+	function($scope, auth){
+		$scope.isLoggedIn = auth.isLoggedIn;
+		$scope.currentUser = auth.currentUser;
+		$scope.logOut = auth.logOut;
+	}
+]);
+
+app.config([ '$stateProvider', '$urlRouterProvider',
+	function($stateProvider, $urlRouterProvider) {
+		$stateProvider.state('home', {
+		  url: '/home',
+		  templateUrl: '/home.html',
+		  controller: 'MainCtrl',
+		  resolve: {
+			postPromise: ['trips', function(trips){
+			  return trips.getAll();
+			}]
+		  }
 		});
-	};
 
-	$scope.logIn = function(){
-		auth.logIn($scope.user).error(function(error){
-		  $scope.error = error;
-		}).then(function(){
-		  $state.go('home');
+		$stateProvider.state('trips', {
+		  url: '/trips/{id}',
+		  templateUrl: '/trips.html',
+		  controller: 'TripsCtrl',
+		  resolve: {
+			trip: ['$stateParams', 'trips', function($stateParams, trips) {
+			  return trips.get($stateParams.id);
+			}]
+		  }
 		});
-	};
-}])
 
-app.controller('NavCtrl', [
-'$scope',
-'auth',
-function($scope, auth){
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.currentUser = auth.currentUser;
-  $scope.logOut = auth.logOut;
-}]);
+		$stateProvider.state('login', {
+		  url: '/login',
+		  templateUrl: '/login.html',
+		  controller: 'AuthCtrl',
+		  onEnter: ['$state', 'auth', function($state, auth){
+			if(auth.isLoggedIn()){
+			  $state.go('home');
+			}
+		  }]
+		});
 
-app.config([
-'$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
+		$stateProvider.state('register', {
+		  url: '/register',
+		  templateUrl: '/register.html',
+		  controller: 'AuthCtrl',
+		  onEnter: ['$state', 'auth', function($state, auth){
+			if(auth.isLoggedIn()){
+			  $state.go('home');
+			}
+		  }]
+		});
 
-  $stateProvider.state('home', {
-      url: '/home',
-      templateUrl: '/home.html',
-      controller: 'MainCtrl',
-      resolve: {
-	    postPromise: ['posts', function(posts){
-	      return posts.getAll();
-	    }]
-  	  }
-    });
-  
-  $stateProvider.state('posts', {
-	  url: '/posts/{id}',
-	  templateUrl: '/posts.html',
-	  controller: 'PostsCtrl',
-	  resolve: {
-	    post: ['$stateParams', 'posts', function($stateParams, posts) {
-	      return posts.get($stateParams.id);
-	    }]
-	  }
-	});
-
-  $stateProvider.state('login', {
-	  url: '/login',
-	  templateUrl: '/login.html',
-	  controller: 'AuthCtrl',
-	  onEnter: ['$state', 'auth', function($state, auth){
-	    if(auth.isLoggedIn()){
-	      $state.go('home');
-	    }
-	  }]
-	});
-
-  $stateProvider.state('register', {
-	  url: '/register',
-	  templateUrl: '/register.html',
-	  controller: 'AuthCtrl',
-	  onEnter: ['$state', 'auth', function($state, auth){
-	    if(auth.isLoggedIn()){
-	      $state.go('home');
-	    }
-	  }]
-	});
-
-  $urlRouterProvider.otherwise('home');
-}]);
+		$urlRouterProvider.otherwise('home');
+	}
+]);
