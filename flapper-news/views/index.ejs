@@ -1,180 +1,306 @@
 <html>
-<head>
-  <title>Travel Notebook</title>
-  <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <head>
+    <title>Travel Notebook</title>
+    <!-- Bootstrap Core CSS -->
+    <!--<link href="/stylesheets/bootstrap.min.css" rel="stylesheet">-->
+    <!-- Google autocomplete -->
+    <script src='//maps.googleapis.com/maps/api/js?sensor=false&libraries=places'></script>
 
-  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
-  <script src="components/angular-moment/node_modules/moment/moment.js"></script>
-  <script src="components/angular-moment/angular-moment.js"></script>
-  <script src="/javascripts/angularApp.js"></script>
-  <style> .glyphicon-thumbs-up { cursor:pointer } </style>
-</head>
-<body ng-app="flapperNews">
-  <nav class="navbar navbar-default" ng-controller="NavCtrl">
-    <ul class="nav navbar-nav pull-right">
-      <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
-      <li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
-      <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
-      <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
-    </ul>
-  </nav>
-  <div class="row">
-    <div class="col-md-6 col-md-offset-3">
+    <!-- bower:css -->
+    <link rel="stylesheet" href="/javascripts/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="/javascripts/lib/angular-google-places-autocomplete/src/autocomplete.css">
+    <!-- endbower -->
 
-      <ui-view></ui-view>
+    <!-- Custom CSS -->
+    <link href="/stylesheets/stylish-portfolio.css" rel="stylesheet">
 
-    </div>
-  </div>
-  <script type="text/ng-template" id="/home.html">
-    <div class="page-header">
-      <h1>Travel Notebook</h1>
-    </div>
+    <!-- Custom Fonts -->
+    <link href="/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
-    <div ng-hide="isLoggedIn()" class="alert alert-warning row">
-      <h4>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a trip.</h4>
-    </div>
 
-    <table class="table">
-      <tr>
-        <th><a href="" ng-click="predicate = 'name'; reverse=false">Name</a></th>
-        <th><a href="" ng-click="predicate = 'dateOfDeparture'; reverse=!reverse">Departure</a></th>
-        <th><a href="" ng-click="predicate = 'arrivalDate'; reverse=!reverse">Arrival</a></th>
-        <th></th>
-      </tr>
-      <tr ng-repeat="trip in trips | orderBy:predicate:reverse">
-        <td>
-          <a href="#/trips/{{trip._id}}">
-            {{trip.name}}
-          </a>
-        </td>
-        <td>
-          <span> {{trip.dateOfDeparture | date: 'yyyy-MM-dd' }} </span>
-        </td>
-        <td>
-          <span> {{trip.arrivalDate | date: 'yyyy-MM-dd' }} </span>
-        </td>
-        <td>
-          <span ng-show="isLoggedIn()">
-              <a href='' ng-click="removeTrip(trip)"> <small>remove</small></a>
-          </span>
-        </td>
-      </tr>
-    </table>
 
-    <div class="panel panel-primary" ng-show="isLoggedIn()">
-      <div class="panel-body">
-        <h3 class="mg-t-sm">Add a new Trip</h3>
-        <form ng-submit="addTrip()">
-          <div class="form-group">
-            <input type="text"
-                   class="form-control"
-                   placeholder="Name"
-                   ng-model="name"/>
-          </div>
-          <div class="form-group">
-            <input type="text"
-                   class="form-control"
-                   placeholder="Description"
-                   ng-model="description"/>
-          </div>
-          <div class="form-group">
-            <label>Date of departure</label>
-            <input type="date"
-                   class="form-control"
-                   ng-model="dateOfDeparture"
-                   placeholder="yyyy-mm-dd"
-                   value=" {{ date | date : 'yyyy-MM-dd' }} "/>
-          </div>
-          <div class="form-group">
-            <label>Arrival date</label>
-            <input type="date"
-                   class="form-control"
-                   ng-model="arrivalDate"
-                   placeholder="yyyy-mm-dd"
-                   value=" {{ date | date : 'yyyy-MM-dd' }} "/>
-          </div>
-          <button type="submit" class="btn btn-primary pull-right">Add Trip</button>
-        </form>
+    <!-- bower:js-->
+    <script src="/javascripts/lib/jquery/dist/jquery.js"></script>
+    <script src="/javascripts/lib/angular/angular.js"></script>
+    <script src="/javascripts/lib/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="/javascripts/lib/moment/moment.js"></script>
+    <script src="/javascripts/lib/angular-moment/angular-moment.js"></script>
+    <script src="/javascripts/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src='/javascripts/lib/lodash/dist/lodash.compat.js'></script>
+    <script src='/javascripts/lib/angular-google-maps/dist/angular-google-maps.js'></script>
+    <script src="/javascripts/lib/angular-google-places-autocomplete/src/autocomplete.js"></script>
+    <!-- endbower-->
+
+    <script src="/javascripts/angularApp.js"></script>
+
+    <style>
+      .glyphicon-thumbs-up { cursor:pointer }
+
+      .custom-background {
+        background-attachment: fixed;
+        overflow: scroll;
+      }
+    </style>
+
+  </head>
+  <body ng-app="flapperNews" id="top" class="header custom-background" >
+
+    <nav class="navbar navbar-default" ng-controller="NavCtrl">
+      <ul class="nav navbar-nav pull-right">
+        <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
+        <li ng-show="isLoggedIn()"><a href="/#/gettingStarted" ng-click="logOut()">Log Out</a></li>
+        <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
+        <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
+      </ul>
+    </nav>
+
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+
+        <ui-view></ui-view>
+
       </div>
     </div>
-  </script>
 
-  <script type="text/ng-template" id="/trips.html">
-    <div class="page-header">
-      <h3>
-          <span> {{trip.name}} </span>
-          <a class="btn btn-primary pull-right" href="/#/home">Back</a>
-      </h3>
-    </div>
+    <script type="text/ng-template" id="/home.html">
+      <div class="page-header">
+        <h1>Travel Notebook</h1>
+      </div>
 
-    <form class="form-horizontal">
-      <div class="form-group" ng-show="trip.description">
-        <label class="col-sm-2 control-label">Description:</label>
-        <div class="col-sm-10">
-          <p class="form-control-static">{{trip.description}}</p>
+      <h5 ng-show="trips.length < 1" class="text-center text-uppercase" style="margin-top: 30px;">
+        ... You have not created any trip...
+      </h5>
+
+      <table ng-hide="trips.length < 1" class="table">
+        <tr>
+          <th><a href="" ng-click="predicate = 'name'; reverse=false">Name</a></th>
+          <th><a href="" ng-click="predicate = 'dateOfDeparture'; reverse=!reverse">Departure</a></th>
+          <th><a href="" ng-click="predicate = 'arrivalDate'; reverse=!reverse">Arrival</a></th>
+          <th></th>
+        </tr>
+        <tr ng-repeat="trip in trips | orderBy:predicate:reverse">
+          <td>
+            <a href="#/trips/{{trip._id}}">
+              {{trip.name}}
+            </a>
+          </td>
+          <td>
+            <span> {{trip.dateOfDeparture | date: 'yyyy-MM-dd' }} </span>
+          </td>
+          <td>
+            <span> {{trip.arrivalDate | date: 'yyyy-MM-dd' }} </span>
+          </td>
+          <td>
+            <span ng-show="isLoggedIn()">
+                <a href='' ng-click="removeTrip(trip)"> <small>remove</small></a>
+            </span>
+          </td>
+        </tr>
+      </table>
+
+      <div class="panel panel-primary" ng-show="isLoggedIn()">
+        <div class="panel-body">
+          <h4 class="mg-t-sm">Add a new Trip</h4>
+          <form ng-submit="addTrip()">
+            <div class="form-group">
+              <input type="text"
+                     class="form-control"
+                     placeholder="Name"
+                     ng-model="name"/>
+            </div>
+            <div class="form-group">
+              <input type="text"
+                     class="form-control"
+                     placeholder="Description"
+                     ng-model="description"/>
+            </div>
+            <div class="form-group">
+              <label>Date of departure</label>
+              <input type="date"
+                     class="form-control"
+                     ng-model="dateOfDeparture"
+                     placeholder="yyyy-mm-dd"
+                     value=" {{ date | date : 'yyyy-MM-dd' }} "/>
+            </div>
+            <div class="form-group">
+              <label>Arrival date</label>
+              <input type="date"
+                     class="form-control"
+                     ng-model="arrivalDate"
+                     placeholder="yyyy-mm-dd"
+                     value=" {{ date | date : 'yyyy-MM-dd' }} "/>
+            </div>
+            <button type="submit" class="btn btn-primary pull-right">Add Trip</button>
+          </form>
         </div>
       </div>
-      <div class="form-group" ng-show="trip.dateOfDeparture">
-        <label class="col-sm-2 control-label">From:</label>
-        <div class="col-sm-10">
-          <p class="form-control-static">{{trip.dateOfDeparture | date: 'yyyy/MM/dd' }}</p>
+    </script>
+
+    <script type="text/ng-template" id="/trips.html">
+      <div class="page-header">
+        <h3>
+            <span> {{trip.name}} </span>
+            <a class="btn btn-primary pull-right" href="/#/home">Back</a>
+        </h3>
+      </div>
+
+      <form class="form-horizontal">
+        <div class="form-group" ng-show="trip.description">
+          <label class="col-sm-2 control-label">Description:</label>
+          <div class="col-sm-10">
+            <p class="form-control-static">{{trip.description}}</p>
+          </div>
+        </div>
+        <div class="form-group" ng-show="trip.dateOfDeparture">
+          <label class="col-sm-2 control-label">From:</label>
+          <div class="col-sm-10">
+            <p class="form-control-static">{{trip.dateOfDeparture | date: 'yyyy/MM/dd' }}</p>
+          </div>
+        </div>
+        <div class="form-group" ng-show="trip.arrivalDate">
+          <label class="col-sm-2 control-label">To:</label>
+          <div class="col-sm-10">
+            <p class="form-control-static">{{trip.arrivalDate | date: 'yyyy/MM/dd' }}</p>
+          </div>
+        </div>
+      </form>
+
+      <h4>Cities: </h4>
+
+      <h5 ng-show="cities.length < 1" class="text-center text-uppercase" style="margin-top: 30px;">
+           ... List of tourist destinations is empty...
+      </h5>
+
+      <div ng-hide="cities.length < 1" class="panel panel-primary" style="padding: 0px 15px;">
+
+        <table class="table" style="padding: 0px 15px;">
+          <tr>
+            <th>Name</th>
+            <!--<th>Departure</th>-->
+            <!--<th>Arrival</th>-->
+            <th></th>
+          </tr>
+          <tr ng-repeat="city in cities">
+            <td>
+              <span> {{city.address}} </span>
+            </td>
+            <!--<td>-->
+              <!--<span> {{trip.dateOfDeparture | date: 'yyyy-MM-dd' }} </span>-->
+            <!--</td>-->
+            <!--<td>-->
+              <!--<span> {{trip.arrivalDate | date: 'yyyy-MM-dd' }} </span>-->
+            <!--</td>-->
+            <td>
+              <a href='' ng-click="removeCity(city)"> <small>remove</small></a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div>
+        <button class="btn btn-primary" ng-click="viewMap = !viewMap" ng-show="!viewMap" > Hide tours</button>
+        <button class="btn btn-primary" ng-show="viewMap" ng-click="viewMap = !viewMap"> View tours</button>
+
+        <div ng-show="!viewMap" style="margin-top: 10px;">
+          <!--<h3 class="text-center" style="margin-top: 30px;">-->
+
+            <ui-gmap-google-map center="map.center" zoom='map.zoom'>
+              <<ui-gmap-marker ng-repeat="city in cities" coords="city" idKey="city._id" icon="city.icon" >
+              </ui-gmap-marker>
+              <ui-gmap-polyline path="cities" stroke="{color: '#dd4b39'}"> </ui-gmap-polyline>
+            </ui-gmap-google-map>
+
+          <!--</h3>-->
         </div>
       </div>
-      <div class="form-group" ng-show="trip.arrivalDate">
-        <label class="col-sm-2 control-label">To:</label>
-        <div class="col-sm-10">
-          <p class="form-control-static">{{trip.arrivalDate | date: 'yyyy/MM/dd' }}</p>
+
+      <div class="panel panel-primary" ng-show="isLoggedIn()" style="margin-top: 20px;">
+        <div class="panel-body">
+          <h4 class="mg-t-sm">Add City:</h4>
+          <form ng-submit="addCity()">
+            <div class="form-group">
+              <input type="text"
+                     class="form-control"
+                     placeholder="City name"
+                     g-places-autocomplete
+                     ng-model="city" />
+            </div>
+            <!--<div class="form-group">-->
+              <!--<label>Date of departure</label>-->
+              <!--<input type="date"-->
+                     <!--class="form-control"-->
+                     <!--ng-model="dateOfDeparture"-->
+                     <!--placeholder="yyyy-mm-dd"-->
+                     <!--value=" {{ date | date : 'yyyy-MM-dd' }} "/>-->
+            <!--</div>-->
+            <!--<div class="form-group">-->
+              <!--<label>Arrival date</label>-->
+              <!--<input type="date"-->
+                     <!--class="form-control"-->
+                     <!--ng-model="arrivalDate"-->
+                     <!--placeholder="yyyy-mm-dd"-->
+                     <!--value=" {{ date | date : 'yyyy-MM-dd' }} "/>-->
+            <!--</div>-->
+            <button type="submit" class="btn btn-primary pull-right">Add</button>
+          </form>
         </div>
       </div>
-    </form>
-    <h3 class="text-center" style="margin-top: 30px;">
-      <small class="text-uppercase"> ... List of tourist destinations ... </small>
-    </h3>
-  </script>
 
-  <script type="text/ng-template" id="/register.html">
-    <div class="page-header">
-      <h1>Travel Notebook</h1>
-    </div>
 
-    <div ng-show="error" class="alert alert-danger row">
-      <span>{{ error.message }}</span>
-    </div>
 
-    <form ng-submit="register()" style="margin-top:30px;">
-      <h3>Register</h3>
+    </script>
 
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Username" ng-model="user.username"></input>
+    <script type="text/ng-template" id="/register.html">
+      <div class="page-header">
+        <h1>Travel Notebook</h1>
       </div>
-      <div class="form-group">
-        <input type="password" class="form-control" placeholder="Password" ng-model="user.password"></input>
+
+      <div ng-show="error" class="alert alert-danger row">
+        <span>{{ error.message }}</span>
       </div>
-      <button type="submit" class="btn btn-primary">Register</button>
-    </form>
-  </script>
 
-  <script type="text/ng-template" id="/login.html">
-    <div class="page-header">
-      <h1>Travel Notebook</h1>
-    </div>
+      <form ng-submit="register()" style="margin-top:30px;">
+        <h3>Register</h3>
 
-    <div ng-show="error" class="alert alert-danger row">
-      <span>{{ error.message }}</span>
-    </div>
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Username" ng-model="user.username"></input>
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control" placeholder="Password" ng-model="user.password"></input>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+    </script>
 
-    <form ng-submit="logIn()" style="margin-top:30px;">
-      <h3>Log In</h3>
-
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Username" ng-model="user.username"></input>
+    <script type="text/ng-template" id="/login.html">
+      <div class="page-header">
+        <h1>Travel Notebook</h1>
       </div>
-      <div class="form-group">
-        <input type="password" class="form-control" placeholder="Password" ng-model="user.password"></input>
+
+      <div ng-show="error" class="alert alert-danger row">
+        <span>{{ error.message }}</span>
       </div>
-      <button type="submit" class="btn btn-primary">Log In</button>
-    </form>
-  </script>
-</body>
+
+      <form ng-submit="logIn()" style="margin-top:30px;">
+        <h3>Log In</h3>
+
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Username" ng-model="user.username"></input>
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control" placeholder="Password" ng-model="user.password"></input>
+        </div>
+        <button type="submit" class="btn btn-primary">Log In</button>
+      </form>
+    </script>
+
+    <script type="text/ng-template" id="/gettingStarted.html">
+      <div class="text-vertical-center">
+        <h1>Start saving your travels now!</h1>
+        <h4>You need to <a href="/#/login" class="btn btn-dark btn-lg" >Log In</a> or <a href="/#/register" class="btn btn-dark btn-lg">Register</a> before you can add a trip.</h4>
+      </div>
+
+    </script>
+  </body>
 </html>

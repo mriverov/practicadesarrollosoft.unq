@@ -10,6 +10,7 @@ var passport = require('passport');
 
 require('./models/Trip');
 require('./models/User');
+require('./models/City');
 require('./config/passport');
 
 mongoose.connect('mongodb://localhost/news');

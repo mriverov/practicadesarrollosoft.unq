@@ -1,4 +1,4 @@
-var app = angular.module('flapperNews', ['ui.router', 'angularMoment']);
+var app = angular.module('flapperNews', ['ui.router', 'angularMoment', 'google.places','uiGmapgoogle-maps']);
 
 app.factory('auth', ['$http', '$window', function($http, $window){
    	var auth = {};
@@ -53,19 +53,21 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
 app.factory('trips', ['$http', 'auth', function($http, auth){
 	var o = {
-		trips: []
+		trips: [],
+		cities: []
 	};
 
 	o.getAll = function() {
-		return $http.get('/trips').success(function(data){
+		return $http.get('/trips', {
+				headers: {Authorization: 'Bearer '+ auth.getToken()}
+			}).success(function(data){
 			angular.copy(data, o.trips);
 		});
 	};
 
-
 	o.create = function(trip) {
 		return $http.post('/trips', trip, {
-			headers: {Authorization: 'Bearer '+auth.getToken()}
+			headers: {Authorization: 'Bearer '+ auth.getToken()}
 		}).success(function(data){
 			o.trips.push(data);
 		});
@@ -81,8 +83,52 @@ app.factory('trips', ['$http', 'auth', function($http, auth){
 		return $http.post('/trips/' + id + '/remove');
 	};
 
+	o.addCity = function(id, city) {
+		return $http.post('/trips/' + id + '/cities', city, {
+		    headers: {Authorization: 'Bearer '+ auth.getToken()}
+		  }).success(function(data){
+			o.cities.push(data);
+		});
+	  };
+
+	o.removeCity = function(id, city) {
+		return $http.post('/trips/' + id + '/cities/' + city + '/remove', {
+			headers: {Authorization: 'Bearer '+ auth.getToken()}}
+		);
+	};
+
 	return o;
 }]);
+
+app.controller('AuthCtrl', [ '$scope', '$state', 'auth',
+	function($scope, $state, auth){
+		$scope.user = {};
+
+		$scope.register = function(){
+			auth.register($scope.user).error(function(error){
+				$scope.error = error;
+			}).then(function(){
+				$state.go('home');
+			});
+		};
+
+		$scope.logIn = function(){
+			auth.logIn($scope.user).error(function(error){
+				$scope.error = error;
+			}).then(function(){
+				$state.go('home');
+			});
+		};
+	}
+]);
+
+app.controller('NavCtrl', [ '$scope', 'auth',
+	function($scope, auth){
+		$scope.isLoggedIn = auth.isLoggedIn;
+		$scope.currentUser = auth.currentUser;
+		$scope.logOut = auth.logOut;
+	}
+]);
 
 app.controller('MainCtrl', [ '$scope', '$window', 'trips', 'auth',
 	function($scope, $window, trips, auth){
@@ -95,7 +141,8 @@ app.controller('MainCtrl', [ '$scope', '$window', 'trips', 'auth',
 				name: $scope.name,
 				description: $scope.description,
 				dateOfDeparture: $scope.dateOfDeparture,
-				arrivalDate: $scope.arrivalDate
+				arrivalDate: $scope.arrivalDate,
+				author: auth.currentUser
 			});
 			$scope.name = '';
 			$scope.description = '';
@@ -117,54 +164,86 @@ app.controller('MainCtrl', [ '$scope', '$window', 'trips', 'auth',
 	}
 ]);
 
-app.controller('TripsCtrl', [ '$scope', 'trips', 'trip', 'auth', '$state',
-	function($scope, trips, trip, auth, $state){
+app.controller('TripsCtrl', [ '$scope',  '$window', 'trips', 'trip', 'auth',
+	function($scope,  $window, trips, trip, auth){
 		$scope.trip = trip;
+		$scope.cities = trip.cities;
 		$scope.isLoggedIn = auth.isLoggedIn;
-	}
-]);
 
-app.controller('AuthCtrl', [ '$scope', '$state', 'auth',
-	function($scope, $state, auth){
-		$scope.user = {};
+		// Agrego esta logica para centrar el mapa siempre que hayan cuidades guardadas.
+		// Al tener varias cuidades necesitamos tener una de referencia para centrar el mapa.
 
-		$scope.register = function(){
-			auth.register($scope.user).error(function(error){
-			  $scope.error = error;
-			}).then(function(){
-			  $state.go('home');
+		if(!$scope.cities || $scope.cities === '' || $scope.cities.length < 1) {
+			$scope.map = { center: { latitude: -34.6037232, longitude:  -58.38159310000003}, zoom: 8 };
+
+		} else {
+			centerMap();
+		}
+
+		$scope.addCity = function(){
+			if($scope.city === '') { return; }
+
+			trips.addCity(trip._id, {
+				address: $scope.city.formatted_address,
+				longitude: $scope.city.geometry.location.F,
+				latitude: $scope.city.geometry.location.A,
+				icon: $scope.city.icon
+			}).success(function(city) {
+				$scope.cities.push(city);
+				centerMap();
 			});
+			$scope.city = '';
 		};
 
-		$scope.logIn = function(){
-			auth.logIn($scope.user).error(function(error){
-			  $scope.error = error;
-			}).then(function(){
-			  $state.go('home');
-			});
+		$scope.removeCity = function(city){
+			var deleteCity = $window.confirm('Are you sure you want to delete?');
+			if(deleteCity){
+				trips.removeCity(trip._id, city._id);
+				var _city = $scope.cities.indexOf(city);
+				$scope.cities.splice(_city, 1);
+			}
 		};
-	}
-]);
 
-app.controller('NavCtrl', [ '$scope', 'auth',
-	function($scope, auth){
-		$scope.isLoggedIn = auth.isLoggedIn;
-		$scope.currentUser = auth.currentUser;
-		$scope.logOut = auth.logOut;
+		$scope.viewMap = false;
+
+		function centerMap(){
+			var city = $scope.cities.pop();
+			$scope.map = { center: { latitude: city.latitude, longitude:  city.longitude}, zoom: 8 };
+			$scope.cities.push(city);
+
+		}
 	}
 ]);
 
 app.config([ '$stateProvider', '$urlRouterProvider',
 	function($stateProvider, $urlRouterProvider) {
+		
 		$stateProvider.state('home', {
 		  url: '/home',
 		  templateUrl: '/home.html',
 		  controller: 'MainCtrl',
+		  onEnter: ['$state', 'auth', function($state, auth){
+			if(!auth.isLoggedIn()){
+			  $state.go('gettingStarted');
+			}
+		  }],
 		  resolve: {
 			postPromise: ['trips', function(trips){
 			  return trips.getAll();
 			}]
 		  }
+		  
+		});
+
+		$stateProvider.state('gettingStarted', {
+		  url: '/gettingStarted',
+		  templateUrl: '/gettingStarted.html',
+		  controller: 'NavCtrl',
+		  onEnter: ['$state', 'auth', function($state, auth){
+			if(auth.isLoggedIn()){
+			  $state.go('home');
+			}
+		  }]
 		});
 
 		$stateProvider.state('trips', {
@@ -200,6 +279,6 @@ app.config([ '$stateProvider', '$urlRouterProvider',
 		  }]
 		});
 
-		$urlRouterProvider.otherwise('home');
+		$urlRouterProvider.otherwise('gettingStarted');
 	}
 ]);
