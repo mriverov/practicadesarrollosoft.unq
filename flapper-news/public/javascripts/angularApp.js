@@ -125,6 +125,12 @@ app.factory('cities', ['$http', 'auth', function($http, auth){
 		});
 	}; 
 
+	o.removeHotel = function(id, hotel) {
+		return $http.post('/city/' + id + '/hotel/' + hotel + '/remove', {
+			headers: {Authorization: 'Bearer '+ auth.getToken()}}
+		);
+	};
+
 	return o;
 }]);
 
@@ -278,6 +284,16 @@ app.controller('CityCtrl', [ '$scope', '$window', 'city', 'cities', 'auth',
 			});
 			$scope.place = '';
 		};
+
+		$scope.removeHotel = function(hotel){
+			var deleteHotel = $window.confirm('Are you sure you want to delete?');
+			if(deleteHotel){
+				cities.removeHotel(city._id, hotel._id);
+				var _hotel = $scope.hotels.indexOf(hotel);
+				$scope.hotels.splice(_hotel, 1);
+			}
+		};
+
 	}
 ]);
 
@@ -285,6 +301,7 @@ app.controller('HotelCtrl', [ '$scope', '$window', 'hotel', 'hotels', 'auth',
 	function($scope, $window, hotel,hotels, auth){
 		$scope.hotel = hotel;
 		$scope.isLoggedIn = auth.isLoggedIn;
+
       
 	}
 ]);

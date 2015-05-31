@@ -136,7 +136,13 @@ router.get('/city/:city/hotel/:hotel', function(req, res, next) {
      res.json(req.hotel);
 });
 
-    
+router.post('/city/:city/hotel/:hotel/remove', function(req, res, next) {
+    var query = Hotel.findByIdAndRemove(req.hotel);
 
+    query.exec(function (err){
+        if (err) { return next(err); }
+        return next();
+    });
+});
 
 module.exports = router;
