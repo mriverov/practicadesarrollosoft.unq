@@ -71,7 +71,10 @@ router.param('city', function(req, res, next, id) {
 });
 
 router.get('/trips/:trip/city/:city', function(req, res, next) {
-    res.json(req.city);
+     req.city.populate('hotels', function(err, city) {
+        if (err) { return next(err); }
+        res.json(city);
+    });
 });
 
 router.post('/trips/:trip/cities', auth, function(req, res, next) {
@@ -114,10 +117,7 @@ router.param('hotel', function(req, res, next, id) {
 
 
 router.post('/city/:city/hotel', auth, function(req, res, next) {
-    console.log("AAAAAAAAAAAAAH");
-    console.log(req.body);
     var hotel = new Hotel(req.body);
-    console.log("BBBBBBBBBBBBBBBH");
     hotel.city = req.city;
 
     hotel.save(function(err, hotel){
@@ -131,5 +131,12 @@ router.post('/city/:city/hotel', auth, function(req, res, next) {
         });
     });
 });
+
+router.get('/city/:city/hotel/:hotel', function(req, res, next) {
+     res.json(req.hotel);
+});
+
+    
+
 
 module.exports = router;

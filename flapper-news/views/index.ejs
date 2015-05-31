@@ -46,7 +46,7 @@
   </head>
   <body ng-app="flapperNews" id="top" class="header custom-background" >
 
-    <nav class="navbar navbar-default" ng-controller="NavCtrl">
+    <nav class="navbar navbar-inverse" ng-controller="NavCtrl">
       <ul class="nav navbar-nav pull-right">
         <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
         <li ng-show="isLoggedIn()"><a href="/#/gettingStarted" ng-click="logOut()">Log Out</a></li>
@@ -99,7 +99,7 @@
         </tr>
       </table>
 
-      <div class="panel panel-primary" ng-show="isLoggedIn()">
+      <div class="panel panel-primary panel-transparent" ng-show="isLoggedIn()">
         <div class="panel-body">
           <h4 class="mg-t-sm">Add a new Trip</h4>
           <form ng-submit="addTrip()">
@@ -145,26 +145,15 @@
         </h3>
       </div>
 
-      <form class="form-horizontal">
         <div class="form-group" ng-show="trip.description">
-          <label class="col-sm-2 control-label">Description:</label>
-          <div class="col-sm-10">
-            <p class="form-control-static">{{trip.description}}</p>
-          </div>
+          <h4><strong>Description:</strong>  {{trip.description}}</h4>
         </div>
         <div class="form-group" ng-show="trip.dateOfDeparture">
-          <label class="col-sm-2 control-label">From:</label>
-          <div class="col-sm-10">
-            <p class="form-control-static">{{trip.dateOfDeparture | date: 'yyyy/MM/dd' }}</p>
-          </div>
+          <h4><strong>From:</strong>  {{trip.dateOfDeparture | date: 'yyyy/MM/dd' }}</h4>
         </div>
         <div class="form-group" ng-show="trip.arrivalDate">
-          <label class="col-sm-2 control-label">To:</label>
-          <div class="col-sm-10">
-            <p class="form-control-static">{{trip.arrivalDate | date: 'yyyy/MM/dd' }}</p>
-          </div>
+          <h4><strong>To:</strong>  {{trip.arrivalDate | date: 'yyyy/MM/dd' }}</h4>
         </div>
-      </form>
 
       <h4>Cities: </h4>
 
@@ -172,7 +161,7 @@
            ... List of tourist destinations is empty...
       </h5>
 
-      <div ng-hide="cities.length < 1" class="panel panel-primary" style="padding: 0px 15px;">
+      <div ng-hide="cities.length < 1" class="panel panel-primary panel-transparent" style="padding: 0px 15px;">
 
         <table class="table" style="padding: 0px 15px;">
           <tr>
@@ -205,7 +194,7 @@
         </div>
       </div>
 
-      <div class="panel panel-primary" ng-show="isLoggedIn()" style="margin-top: 20px;">
+      <div class="panel panel-primary panel-transparent" ng-show="isLoggedIn()" style="margin-top: 20px;">
         <div class="panel-body">
           <h4 class="mg-t-sm">Add City:</h4>
           <form ng-submit="addCity()">
@@ -233,7 +222,7 @@
            ... List of hotels is empty...
       </h5>
 
-      <div ng-hide="hotels.length < 1" class="panel panel-primary" style="padding: 0px 15px;">
+      <div ng-hide="hotels.length < 1" class="panel panel-primary panel-transparent" style="padding: 0px 15px;">
 
         <table class="table" style="padding: 0px 15px;">
           <tr>
@@ -253,7 +242,7 @@
         </table>
       </div>
 
-      <div class="panel panel-primary" ng-show="isLoggedIn()" style="margin-top: 20px;">
+      <div class="panel panel-primary panel-transparent" ng-show="isLoggedIn()" style="margin-top: 20px;">
         <div class="panel-body">
           <h4 class="mg-t-sm"> Add your lodging place:</h4>
           <form ng-submit="addHotel()">
@@ -268,6 +257,32 @@
           </form> 
        </div>
       </div>
+    </script>
+
+    <script type="text/ng-template" id="/hotelDescription.html">
+          <div class="panel panel-primary panel-transparent" style="padding: 0px 15px;"
+            <div class="panel-heading">
+              <h3 class="panel-title">{{hotel.name}}</h3>
+            </div>
+            <div class="panel-body">
+              
+                  <h4> {{hotel.address}} </h4>
+                  <h4> {{hotel.telephone}} </h3>
+            </div>
+          </div>
+
+        <div>
+          <button class="btn btn-primary" ng-click="viewMap = !viewMap" ng-show="!viewMap" > Hide map</button>
+          <button class="btn btn-primary" ng-show="viewMap" ng-click="viewMap = !viewMap"> View map</button>
+
+          <div ng-show="!viewMap" style="margin-top: 10px;">
+              <ui-gmap-google-map center="hotel" zoom=8>
+                <<ui-gmap-marker coords="hotel" idKey="hotel._id" icon="hotel.icon" >
+                </ui-gmap-marker>
+              </ui-gmap-google-map>
+          </div>
+        </div>
+
     </script>
 
     <script type="text/ng-template" id="/register.html">

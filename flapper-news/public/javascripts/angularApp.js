@@ -119,6 +119,20 @@ app.factory('cities', ['$http', 'auth', function($http, auth){
 		});
 	  };
 
+	 o.getHotel = function(city, hotel) {
+		return $http.get('/city/' + city+'/hotel/'+hotel).then(function(res){
+			return res.data;
+		});
+	}; 
+
+	return o;
+}]);
+
+app.factory('hotels', ['$http', 'auth', function($http, auth){
+	var o = {
+		
+	};
+
 	return o;
 }]);
 
@@ -267,6 +281,16 @@ app.controller('CityCtrl', [ '$scope', '$window', 'city', 'cities', 'auth',
 	}
 ]);
 
+app.controller('HotelCtrl', [ '$scope', '$window', 'hotel', 'hotels', 'auth',
+	function($scope, $window, hotel,hotels, auth){
+		$scope.hotel = hotel;
+		$scope.isLoggedIn = auth.isLoggedIn;
+      
+	}
+]);
+
+
+
 app.config([ '$stateProvider', '$urlRouterProvider',
 	function($stateProvider, $urlRouterProvider) {
 		
@@ -331,13 +355,24 @@ app.config([ '$stateProvider', '$urlRouterProvider',
 		  }]
 		});
 
-		  $stateProvider.state('city', {
+		$stateProvider.state('city', {
 		  url: '/trips/{id}/city/{city}',
 		  templateUrl: '/cityDescription.html',
 		  controller: 'CityCtrl',
 		  resolve: {
-			city: ['$stateParams', 'trips', function($stateParams,trips) {
-			  return trips.getCity($stateParams.id,$stateParams.city);
+			city: ['$stateParams', 'trips', function($stateParams, trips) {
+			  return trips.getCity($stateParams.id, $stateParams.city);
+			}]
+		  }
+		});
+
+		$stateProvider.state('hotel', {
+		  url: '/city/{city}/hotel/{hotel}',
+		  templateUrl: '/hotelDescription.html',
+		  controller: 'HotelCtrl',
+		  resolve: {
+			hotel: ['$stateParams', 'cities', function($stateParams, cities) {
+			  return cities.getHotel($stateParams.city, $stateParams.hotel);
 			}]
 		  }
 		});
