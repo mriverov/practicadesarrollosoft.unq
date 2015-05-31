@@ -177,8 +177,6 @@
         <table class="table" style="padding: 0px 15px;">
           <tr>
             <th>Name</th>
-            <!--<th>Departure</th>-->
-            <!--<th>Arrival</th>-->
             <th></th>
           </tr>
           <tr ng-repeat="city in cities">
@@ -187,12 +185,6 @@
                 {{city.address}}
               </a>
             </td>
-            <!--<td>-->
-              <!--<span> {{trip.dateOfDeparture | date: 'yyyy-MM-dd' }} </span>-->
-            <!--</td>-->
-            <!--<td>-->
-              <!--<span> {{trip.arrivalDate | date: 'yyyy-MM-dd' }} </span>-->
-            <!--</td>-->
             <td>
               <a href='' ng-click="removeCity(city)"> <small>remove</small></a>
             </td>
@@ -205,15 +197,11 @@
         <button class="btn btn-primary" ng-show="viewMap" ng-click="viewMap = !viewMap"> View tours</button>
 
         <div ng-show="!viewMap" style="margin-top: 10px;">
-          <!--<h3 class="text-center" style="margin-top: 30px;">-->
-
             <ui-gmap-google-map center="map.center" zoom='map.zoom'>
               <<ui-gmap-marker ng-repeat="city in cities" coords="city" idKey="city._id" icon="city.icon" >
               </ui-gmap-marker>
               <ui-gmap-polyline path="cities" stroke="{color: '#dd4b39'}"> </ui-gmap-polyline>
             </ui-gmap-google-map>
-
-          <!--</h3>-->
         </div>
       </div>
 
@@ -228,22 +216,6 @@
                      g-places-autocomplete
                      ng-model="city" />
             </div>
-            <!--<div class="form-group">-->
-              <!--<label>Date of departure</label>-->
-              <!--<input type="date"-->
-                     <!--class="form-control"-->
-                     <!--ng-model="dateOfDeparture"-->
-                     <!--placeholder="yyyy-mm-dd"-->
-                     <!--value=" {{ date | date : 'yyyy-MM-dd' }} "/>-->
-            <!--</div>-->
-            <!--<div class="form-group">-->
-              <!--<label>Arrival date</label>-->
-              <!--<input type="date"-->
-                     <!--class="form-control"-->
-                     <!--ng-model="arrivalDate"-->
-                     <!--placeholder="yyyy-mm-dd"-->
-                     <!--value=" {{ date | date : 'yyyy-MM-dd' }} "/>-->
-            <!--</div>-->
             <button type="submit" class="btn btn-primary pull-right">Add</button>
           </form>
         </div>
@@ -252,9 +224,50 @@
 
     <script type="text/ng-template" id="/cityDescription.html">
       <div class="text-vertical-center">
-          <span> {{city.address}} </span>
+          <h3> {{city.address}} </h3>
       </div>
 
+      <h4>Hotels: </h4>
+
+      <h5 ng-show="hotels.length < 1" class="text-center text-uppercase" style="margin-top: 30px;">
+           ... List of hotels is empty...
+      </h5>
+
+      <div ng-hide="hotels.length < 1" class="panel panel-primary" style="padding: 0px 15px;">
+
+        <table class="table" style="padding: 0px 15px;">
+          <tr>
+            <th>Name</th>
+            <th></th>
+          </tr>
+          <tr ng-repeat="hotel in hotels">
+            <td>
+              <a href="#/city/{{city._id}}/hotel/{{hotel._id}}">
+                {{hotel.name}}
+              </a>
+            </td>
+            <td>
+              <a href='' ng-click="removeHotel(hotel)"> <small>remove</small></a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="panel panel-primary" ng-show="isLoggedIn()" style="margin-top: 20px;">
+        <div class="panel-body">
+          <h4 class="mg-t-sm"> Add your lodging place:</h4>
+          <form ng-submit="addHotel()">
+            <div class="form-group">
+                <input type="text" 
+                       class="form-control" 
+                       placeholder="Search hotel" 
+                       g-places-autocomplete options="autocompleteOptions"
+                       ng-model="place"/>
+            </div>
+            <button type="submit" class="btn btn-primary pull-right">Add</button>
+          </form> 
+       </div>
+      </div>
     </script>
 
     <script type="text/ng-template" id="/register.html">

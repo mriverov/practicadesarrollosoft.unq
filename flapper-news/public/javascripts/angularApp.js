@@ -108,8 +108,17 @@ app.factory('trips', ['$http', 'auth', function($http, auth){
 
 app.factory('cities', ['$http', 'auth', function($http, auth){
 	var o = {
-	
+		hotels:[]
 	};
+
+	o.addHotel = function(city, hotel) {
+		return $http.post('/city/' + city + '/hotel', hotel, {
+		    headers: {Authorization: 'Bearer '+ auth.getToken()}
+		  }).success(function(data){
+			o.hotels.push(data);
+		});
+	  };
+
 	return o;
 }]);
 
@@ -230,9 +239,31 @@ app.controller('TripsCtrl', [ '$scope',  '$window', 'trips', 'trip', 'auth',
 
 
 app.controller('CityCtrl', [ '$scope', '$window', 'city', 'cities', 'auth',
-	function($scope, $window, city, auth){
+	function($scope, $window, city,cities, auth){
 		$scope.city = city;
+		$scope.hotels = city.hotels;
 		$scope.isLoggedIn = auth.isLoggedIn;
+
+        $scope.autocompleteOptions = {
+            types: ['establishment']
+        }
+
+        $scope.addHotel = function(){
+			if($scope.place === '') { return; }
+
+			cities.addHotel(city._id, {
+				name: $scope.place.name,
+				address: $scope.place.formatted_address,
+				telephone:$scope.place.formatted_phone_number,
+				longitude: $scope.place.geometry.location.F,
+				latitude: $scope.place.geometry.location.A,
+				icon: $scope.place.icon,
+			}).success(function(place) {
+				$scope.hotels.push(place);
+				//centerMap();
+			});
+			$scope.place = '';
+		};
 	}
 ]);
 

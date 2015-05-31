@@ -8,6 +8,7 @@ var jwt = require('express-jwt');
 var router = express.Router();
 var Trip = mongoose.model('Trip');
 var City = mongoose.model('City');
+var Hotel = mongoose.model('Hotel');
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
 router.get('/trips', auth, function(req, res, next) {
@@ -95,6 +96,39 @@ router.post('/trips/:trip/cities/:city/remove', function(req, res, next) {
     query.exec(function (err){
         if (err) { return next(err); }
         return next();
+    });
+});
+
+// **************  Hotel ***************** //
+router.param('hotel', function(req, res, next, id) {
+    var query = Hotel.findById(id);
+
+    query.exec(function (err, hotel){
+        if (err) { return next(err); }
+        if (!hotel) { return next(new Error('can\'t find hotel')); }
+
+        req.hotel = hotel;
+        return next();
+    });
+});
+
+
+router.post('/city/:city/hotel', auth, function(req, res, next) {
+    console.log("AAAAAAAAAAAAAH");
+    console.log(req.body);
+    var hotel = new Hotel(req.body);
+    console.log("BBBBBBBBBBBBBBBH");
+    hotel.city = req.city;
+
+    hotel.save(function(err, hotel){
+        if(err){ return next(err); }
+
+        req.city.hotels.push(hotel);
+        req.city.save(function(err, city) {
+            if(err){ return next(err); }
+
+            res.json(hotel);
+        });
     });
 });
 
