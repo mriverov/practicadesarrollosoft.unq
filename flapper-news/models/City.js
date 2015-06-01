@@ -5,8 +5,10 @@ var CitySchema = new mongoose.Schema({
   longitude: Number,
   latitude: Number,
   icon: String,
-  trip: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip' }
-  
+  trip: { type: mongoose.Schema.Types.ObjectId, ref: 'Trip' },
+  hotels: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Hotel' }],
+  points: [{ type: mongoose.Schema.Types.ObjectId, ref: 'PointOfInterest' }]
+
 });
 
 mongoose.model('City', CitySchema);

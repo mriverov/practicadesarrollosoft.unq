@@ -108,8 +108,58 @@ app.factory('trips', ['$http', 'auth', function($http, auth){
 
 app.factory('cities', ['$http', 'auth', function($http, auth){
 	var o = {
-	
+		hotels:[],
+		points:[]
 	};
+
+	o.addHotel = function(city, hotel) {
+		return $http.post('/city/' + city + '/hotel', hotel, {
+		    headers: {Authorization: 'Bearer '+ auth.getToken()}
+		  }).success(function(data){
+			o.hotels.push(data);
+		});
+	  };
+
+	o.getHotel = function(city, hotel) {
+		return $http.get('/city/' + city+'/hotel/'+hotel).then(function(res){
+			return res.data;
+		});
+	}; 
+
+	o.removeHotel = function(id, hotel) {
+		return $http.post('/city/' + id + '/hotel/' + hotel + '/remove', {
+			headers: {Authorization: 'Bearer '+ auth.getToken()}}
+		);
+	};
+
+	o.addPoint = function(city, point) {
+		return $http.post('/city/' + city + '/point', point, {
+			headers: {Authorization: 'Bearer '+ auth.getToken()}
+		}).success(function(data){
+			o.points.push(data);
+		});
+	};
+
+	o.getPoint = function(city, point) {
+		return $http.get('/city/' + city + '/point/' + point).then(function(res){
+			return res.data;
+		});
+	};
+
+	o.removePoint = function(id, point) {
+		return $http.post('/city/' + id + '/point/' + point + '/remove', {
+			headers: {Authorization: 'Bearer '+ auth.getToken()}}
+		);
+	};
+
+	return o;
+}]);
+
+app.factory('hotels', ['$http', 'auth', function($http, auth){
+	var o = {
+		
+	};
+
 	return o;
 }]);
 
@@ -228,10 +278,82 @@ app.controller('TripsCtrl', [ '$scope',  '$window', 'trips', 'trip', 'auth',
 	}
 ]);
 
-
 app.controller('CityCtrl', [ '$scope', '$window', 'city', 'cities', 'auth',
-	function($scope, $window, city, auth){
+	function($scope, $window, city, cities, auth){
 		$scope.city = city;
+		$scope.hotels = city.hotels;
+		$scope.points = city.points;
+		$scope.isLoggedIn = auth.isLoggedIn;
+
+        $scope.autocompleteOptions = {
+            types: ['establishment']
+        };
+
+        $scope.addHotel = function(){
+			if($scope.place === '') { return; }
+
+			console.log(city);
+
+			cities.addHotel(city._id, {
+				name: $scope.place.name,
+				address: $scope.place.formatted_address,
+				telephone:$scope.place.formatted_phone_number,
+				longitude: $scope.place.geometry.location.F,
+				latitude: $scope.place.geometry.location.A,
+				icon: $scope.place.icon
+			}).success(function(place) {
+				$scope.hotels.push(place);
+				//centerMap();
+			});
+			$scope.place = '';
+		};
+
+		$scope.removeHotel = function(hotel){
+			var deleteHotel = $window.confirm('Are you sure you want to delete?');
+			if(deleteHotel){
+				cities.removeHotel(city._id, hotel._id);
+				var _hotel = $scope.hotels.indexOf(hotel);
+				$scope.hotels.splice(_hotel, 1);
+			}
+		};
+
+		$scope.addPoint = function(){
+			if($scope.newPoint === '') { return; }
+
+			cities.addPoint(city._id, {
+				name: $scope.newPoint.name,
+				address: $scope.newPoint.formatted_address,
+				longitude: $scope.newPoint.geometry.location.F,
+				latitude: $scope.newPoint.geometry.location.A,
+				icon: $scope.newPoint.icon
+			}).success(function(place) {
+				$scope.points.push(place);
+			});
+			$scope.newPoint = '';
+		};
+
+		$scope.removePoint = function(point){
+			var deletePoint = $window.confirm('Are you sure you want to delete?');
+			if(deletePoint){
+				cities.removePoint(city._id, point._id);
+				var _point = $scope.points.indexOf(point);
+				$scope.points.splice(_point, 1);
+			}
+		};
+
+	}
+]);
+
+app.controller('HotelCtrl', [ '$scope', 'hotel', 'hotels', 'auth',
+	function($scope, hotel, hotels, auth){
+		$scope.hotel = hotel;
+		$scope.isLoggedIn = auth.isLoggedIn;
+	}
+]);
+
+app.controller('PointCtrl', [ '$scope', 'point', 'auth', 'cities',
+	function($scope, point, auth, cities){
+		$scope.point = point;
 		$scope.isLoggedIn = auth.isLoggedIn;
 	}
 ]);
@@ -300,18 +422,38 @@ app.config([ '$stateProvider', '$urlRouterProvider',
 		  }]
 		});
 
-		  $stateProvider.state('city', {
+		$stateProvider.state('city', {
 		  url: '/trips/{id}/city/{city}',
 		  templateUrl: '/cityDescription.html',
 		  controller: 'CityCtrl',
 		  resolve: {
-			city: ['$stateParams', 'trips', function($stateParams,trips) {
-			  return trips.getCity($stateParams.id,$stateParams.city);
+			city: ['$stateParams', 'trips', function($stateParams, trips) {
+			  return trips.getCity($stateParams.id, $stateParams.city);
 			}]
 		  }
 		});
 
-		
+		$stateProvider.state('hotel', {
+		  url: '/city/{city}/hotel/{hotel}',
+		  templateUrl: '/hotelDescription.html',
+		  controller: 'HotelCtrl',
+		  resolve: {
+			hotel: ['$stateParams', 'cities', function($stateParams, cities) {
+			  return cities.getHotel($stateParams.city, $stateParams.hotel);
+			}]
+		  }
+		});
+
+		$stateProvider.state('pointOfInterest', {
+		  url: '/city/{city}/point/{point}',
+		  templateUrl: '/pointDetails.html',
+		  controller: 'PointCtrl',
+		  resolve: {
+			point: ['$stateParams', 'cities', function($stateParams, cities) {
+			  return cities.getPoint($stateParams.city, $stateParams.point);
+			}]
+		  }
+		});
 
 		$urlRouterProvider.otherwise('gettingStarted');
 	}

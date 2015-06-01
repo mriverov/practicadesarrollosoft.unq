@@ -8,5 +8,6 @@ router.get('/', function(req, res, next) {
 
 router.use(require('./users.js'));
 router.use(require('./trips.js'));
+router.use(require('./cities.js'));
 
 module.exports = router;

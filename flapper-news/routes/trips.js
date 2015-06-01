@@ -8,6 +8,8 @@ var jwt = require('express-jwt');
 var router = express.Router();
 var Trip = mongoose.model('Trip');
 var City = mongoose.model('City');
+//var Hotel = mongoose.model('Hotel');
+//var PointOfInterest = mongoose.model('PointOfInterest');
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
 router.get('/trips', auth, function(req, res, next) {
@@ -59,6 +61,7 @@ router.post('/trips/:trip/remove', function(req, res, next) {
 
 router.param('city', function(req, res, next, id) {
     var query = City.findById(id);
+    console.log(id);
 
     query.exec(function (err, city){
         if (err) { return next(err); }
@@ -70,7 +73,14 @@ router.param('city', function(req, res, next, id) {
 });
 
 router.get('/trips/:trip/city/:city', function(req, res, next) {
-    res.json(req.city);
+    req.city.populate('hotels', function(err, city) {
+        if (err) { return next(err); }
+    });
+
+    req.city.populate('points', function(err, city) {
+        if (err) { return next(err); }
+        res.json(city);
+    });
 });
 
 router.post('/trips/:trip/cities', auth, function(req, res, next) {
