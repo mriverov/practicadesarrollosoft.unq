@@ -12,6 +12,7 @@ require('./models/Trip');
 require('./models/User');
 require('./models/City');
 require('./models/Hotel');
+require('./models/PointOfInterest');
 require('./config/passport');
 
 mongoose.connect('mongodb://localhost/news');
