@@ -216,7 +216,9 @@
 
     <script type="text/ng-template" id="/cityDescription.html">
       <div class="page-header">
-          <h3> <span> {{city.address}} </span> 
+          <h3>
+            <span> {{city.address}} </span>
+            <a class="btn btn-primary pull-right" href="/#/trips/{{city.trip}}">Back</a>
           </h3>
       </div>
 
@@ -261,32 +263,98 @@
           </form> 
        </div>
       </div>
+
+      <h4>Points of interest: </h4>
+
+      <h5 ng-show="points.length < 1" class="text-center text-uppercase" style="margin-top: 30px;">
+        ... List of points of interest is empty...
+      </h5>
+
+      <div ng-hide="points.length < 1" class="panel panel-primary panel-transparent" style="padding: 0px 15px;">
+
+        <table class="table" style="padding: 0px 15px;">
+          <tr>
+            <th>Name</th>
+            <th></th>
+          </tr>
+          <tr ng-repeat="point in points">
+            <td>
+              <a href="#/city/{{city._id}}/point/{{point._id}}">
+                {{point.name}}
+              </a>
+            </td>
+            <td>
+              <a href='' ng-click="removePoint(point)"> <small>remove</small></a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="panel panel-primary panel-transparent" ng-show="isLoggedIn()" style="margin-top: 20px;">
+        <div class="panel-body">
+          <h4 class="mg-t-sm"> Add a new point:</h4>
+          <form ng-submit="addPoint()">
+            <div class="form-group">
+              <input type="text"
+                     class="form-control"
+                     placeholder="Search point of interest"
+                     g-places-autocomplete
+                     ng-model="newPoint"/>
+            </div>
+            <button type="submit" class="btn btn-primary pull-right">Add</button>
+          </form>
+        </div>
+      </div>
     </script>
 
     <script type="text/ng-template" id="/hotelDescription.html">
-          <div class="panel panel-primary panel-transparent" 
-            <div class="page-header">
-              <h3> <span> {{hotel.name}} </span> 
-              </h3>
-            </div>
-            
-            <div class="panel-body">
-              <h4> <strong>Address:</strong> {{hotel.address}} </h4>
-              <h4> <strong>Telephone:</strong> {{hotel.telephone}} </h3>
-            </div>
-          </div>
-
-        <div>
-          <button class="btn btn-primary" ng-click="viewMap = !viewMap" ng-show="!viewMap" > Hide map</button>
-          <button class="btn btn-primary" ng-show="viewMap" ng-click="viewMap = !viewMap"> View map</button>
-
-          <div ng-show="!viewMap" style="margin-top: 10px;">
-              <ui-gmap-google-map center="hotel" zoom=8>
-                <<ui-gmap-marker coords="hotel" idKey="hotel._id" icon="hotel.icon" >
-                </ui-gmap-marker>
-              </ui-gmap-google-map>
-          </div>
+      <div class="page-header">
+        <h3>
+          <span>Details</span>
+          <a class="btn btn-primary pull-right" href="">Back</a>
+        </h3>
+      </div>
+      <div class="panel panel-primary panel-transparent">
+        <div class="panel-body">
+          <address>
+            <strong> {{hotel.name}} </strong><br>
+            {{hotel.address}} <br>
+            <abbr title="Phone">P:</abbr> {{hotel.telephone}}
+          </address>
         </div>
+      </div>
+
+      <div style="margin-top: 10px;">
+          <ui-gmap-google-map center="hotel" zoom=20>
+            <<ui-gmap-marker coords="hotel" idKey="hotel._id" icon="hotel.icon" >
+            </ui-gmap-marker>
+          </ui-gmap-google-map>
+      </div>
+
+    </script>
+
+    <script type="text/ng-template" id="/pointDetails.html">
+      <div class="page-header">
+        <h3>
+          <span>Details</span>
+          <a class="btn btn-primary pull-right" href="">Back</a>
+        </h3>
+      </div>
+      <div class="panel panel-primary panel-transparent">
+        <div class="panel-body">
+          <address>
+            <strong>{{point.name}}</strong><br>
+            {{point.address}}<br>
+          </address>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px;">
+          <ui-gmap-google-map center="point" zoom=15>
+            <ui-gmap-marker coords="point" idKey="point._id" icon="point.icon" >
+            </ui-gmap-marker>
+          </ui-gmap-google-map>
+      </div>
 
     </script>
 
