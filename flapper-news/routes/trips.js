@@ -8,7 +8,8 @@ var jwt = require('express-jwt');
 var router = express.Router();
 var Trip = mongoose.model('Trip');
 var City = mongoose.model('City');
-var Hotel = mongoose.model('Hotel');
+//var Hotel = mongoose.model('Hotel');
+//var PointOfInterest = mongoose.model('PointOfInterest');
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
 router.get('/trips', auth, function(req, res, next) {
@@ -60,6 +61,7 @@ router.post('/trips/:trip/remove', function(req, res, next) {
 
 router.param('city', function(req, res, next, id) {
     var query = City.findById(id);
+    console.log(id);
 
     query.exec(function (err, city){
         if (err) { return next(err); }
@@ -71,7 +73,11 @@ router.param('city', function(req, res, next, id) {
 });
 
 router.get('/trips/:trip/city/:city', function(req, res, next) {
-     req.city.populate('hotels', function(err, city) {
+    req.city.populate('hotels', function(err, city) {
+        if (err) { return next(err); }
+    });
+
+    req.city.populate('points', function(err, city) {
         if (err) { return next(err); }
         res.json(city);
     });
@@ -95,49 +101,6 @@ router.post('/trips/:trip/cities', auth, function(req, res, next) {
 
 router.post('/trips/:trip/cities/:city/remove', function(req, res, next) {
     var query = City.findByIdAndRemove(req.city);
-
-    query.exec(function (err){
-        if (err) { return next(err); }
-        return next();
-    });
-});
-
-// **************  Hotel ***************** //
-router.param('hotel', function(req, res, next, id) {
-    var query = Hotel.findById(id);
-
-    query.exec(function (err, hotel){
-        if (err) { return next(err); }
-        if (!hotel) { return next(new Error('can\'t find hotel')); }
-
-        req.hotel = hotel;
-        return next();
-    });
-});
-
-
-router.post('/city/:city/hotel', auth, function(req, res, next) {
-    var hotel = new Hotel(req.body);
-    hotel.city = req.city;
-
-    hotel.save(function(err, hotel){
-        if(err){ return next(err); }
-
-        req.city.hotels.push(hotel);
-        req.city.save(function(err, city) {
-            if(err){ return next(err); }
-
-            res.json(hotel);
-        });
-    });
-});
-
-router.get('/city/:city/hotel/:hotel', function(req, res, next) {
-     res.json(req.hotel);
-});
-
-router.post('/city/:city/hotel/:hotel/remove', function(req, res, next) {
-    var query = Hotel.findByIdAndRemove(req.hotel);
 
     query.exec(function (err){
         if (err) { return next(err); }
