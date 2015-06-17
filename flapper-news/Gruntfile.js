@@ -1,8 +1,11 @@
 module.exports = function(grunt) {
 
-     grunt.initConfig({
+  grunt.initConfig({
+    jshint: {
+      all: ['Gruntfile.js', 'public/javascript/*.js']
+    },
 
-          wiredep: {
+    wiredep: {
                task: {
                     src: ['views/**/*.ejs']
                },
@@ -11,13 +14,15 @@ module.exports = function(grunt) {
                }
           },
 
-          compile: {
-               html: ['jade', 'wiredep'],
-               styles: ['concat:styles', 'sass', 'clean:compile'],
-               js: ['concat:js']
-          }
+    compile: {
+         html: ['jade', 'wiredep'],
+         styles: ['concat:styles', 'sass', 'clean:compile'],
+         js: ['concat:js']
+      }
+  });
 
-     });
+  grunt.loadNpmTasks('grunt-wiredep');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.registerTask('default', 'jshint');
 
-     grunt.loadNpmTasks('grunt-wiredep');
 };
