@@ -1,6 +1,7 @@
 {
-  "name": "flapper-news",
+  "name": "practicadesarrollosoft.unq",
   "version": "0.0.0",
+  "private": true,
   "dependencies": {
     "angular-moment": "^0.10.0",
     "base64url": "^1.0.4",
@@ -20,11 +21,13 @@
   },
   "devDependencies": {
     "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
     "grunt-contrib-jshint": "^0.11.2",
     "grunt-wiredep": "~2.0.0",
     "jshint": "^2.8.0"
   },
   "scripts": {
+    "start": "node ./bin/www",
     "test": "grunt --verbose"
-  },
+  }
 }

@@ -190,7 +190,7 @@
 
         <div ng-show="!viewMap" style="margin-top: 10px;">
             <ui-gmap-google-map center="map.center" zoom='map.zoom'>
-              <<ui-gmap-marker ng-repeat="city in cities" coords="city" idKey="city._id" icon="city.icon" >
+              <ui-gmap-marker ng-repeat="city in cities" coords="city" idKey="city._id" icon="city.icon" >
               </ui-gmap-marker>
               <ui-gmap-polyline path="cities" stroke="{color: '#dd4b39'}"> </ui-gmap-polyline>
             </ui-gmap-google-map>
@@ -326,7 +326,7 @@
 
       <div style="margin-top: 10px;">
           <ui-gmap-google-map center="hotel" zoom=20>
-            <<ui-gmap-marker coords="hotel" idKey="hotel._id" icon="hotel.icon" >
+            <ui-gmap-marker coords="hotel" idKey="hotel._id" icon="hotel.icon" >
             </ui-gmap-marker>
           </ui-gmap-google-map>
       </div>
