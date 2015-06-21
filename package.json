@@ -35,6 +35,7 @@
   },
   "scripts": {
     "start": "node ./bin/www",
-    "test": "grunt --verbose"
+    "test": "grunt --verbose",
+    "postinstall": "bower install"
   }
 }
