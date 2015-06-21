@@ -27,6 +27,7 @@
     "grunt-contrib-jshint": "^0.11.2",
     "grunt-karma": "^0.11.1",
     "grunt-wiredep": "~2.0.0",
+    "grunt-express": "^1.4.1",
     "jasmine-core": "^2.3.4",
     "jshint": "^2.8.0",
     "karma": "^0.12.36",
