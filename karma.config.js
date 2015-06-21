@@ -1,6 +1,7 @@
 /**
  * Created by erica on 21/06/15.
  */
+
 // Karma configuration
 // Generated on Sat Apr 11 2015 19:38:38 GMT-0300 (ART)
 
@@ -18,11 +19,14 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'bower_components/angular/angular.js',
-            'bower_components/angular-route/angular-route.js',
-            'bower_components/angular-mocks/angular-mocks.js',
+            'public/javascripts/lib/angular/angular.js',
+            'public/javascripts/lib/angular-ui-router/**/angular-ui-router.js',
+            'public/javascripts/lib/angular-mocks/angular-mocks.js',
+            'public/javascripts/lib/angular-moment/angular-moment.js',
+            'public/javascripts/lib/angular-google-maps/**/angular-google-maps.js',
+            'public/javascripts/lib/angular-google-places-autocomplete/**/autocomplete.js',
 
-            'public/javascript/*.js',
+            'public/javascripts/*.js',
             'spec/*Spec.js'
         ],
 
