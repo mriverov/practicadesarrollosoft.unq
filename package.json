@@ -25,9 +25,11 @@
     "grunt-bower-install-simple": "^1.1.2",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-jshint": "^0.11.2",
-    "grunt-karma": "^0.11.1",
-    "grunt-wiredep": "~2.0.0",
     "grunt-express": "^1.4.1",
+    "grunt-karma": "^0.11.1",
+    "grunt-protractor-runner": "^2.0.0",
+    "grunt-selenium-webdriver-phantom": "^1.0.4",
+    "grunt-wiredep": "~2.0.0",
     "jasmine-core": "^2.3.4",
     "jshint": "^2.8.0",
     "karma": "^0.12.36",
@@ -37,6 +39,7 @@
     "protractor": "^2.1.0"
   },
   "scripts": {
+    "start": "node ./bin/www",
     "test": "grunt --verbose",
     "postinstall": "bower install"
   }
