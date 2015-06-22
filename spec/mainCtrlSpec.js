@@ -5,7 +5,7 @@
 describe("Main Controller", function() {
 
     beforeEach(function(){
-        module('travelNotebook');
+        module('flapperNews');
     });
 
     var MainController, scope;

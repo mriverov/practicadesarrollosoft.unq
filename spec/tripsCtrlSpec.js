@@ -1,7 +1,7 @@
 describe("Trip Controller", function() {
 
     beforeEach(function(){
-        module('travelNotebook');
+        module('flapperNews');
     });
 
     var TripController, scope;
