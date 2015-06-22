@@ -1,4 +1,4 @@
-var app = angular.module('travelNotebook', ['ui.router', 'angularMoment', 'google.places','uiGmapgoogle-maps']);
+var app = angular.module('flapperNews', ['ui.router', 'angularMoment', 'google.places','uiGmapgoogle-maps']);
 
 app.factory('auth', ['$http', '$window', function($http, $window){
    	var auth = {};
@@ -291,8 +291,6 @@ app.controller('CityCtrl', [ '$scope', '$window', 'city', 'cities', 'auth',
 
         $scope.addHotel = function(){
 			if($scope.place === '') { return; }
-
-			console.log(city);
 
 			cities.addHotel(city._id, {
 				name: $scope.place.name,
