@@ -2,6 +2,9 @@
   "name": "practicadesarrollosoft.unq",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": ">= 0.10.0"
+  },
   "dependencies": {
     "angular-moment": "^0.10.0",
     "base64url": "^1.0.4",
@@ -39,8 +42,7 @@
     "protractor": "^2.1.0"
   },
   "scripts": {
-    "test": "grunt --verbose",
-    "postinstall": "bower install",
+    "test": "bower install && grunt --verbose",
     "start": "node ./bin/www"
   }
 }
