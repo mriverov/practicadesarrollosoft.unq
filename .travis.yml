@@ -3,6 +3,7 @@ node_js:
 - '0.10'
 deploy:
   provider: heroku
+  app: travelnotebook-master
   api_key:
     secure: rTGbT/GdcSXx17rnubf0roHxa3NJVqeOLyWJH/1ufEruAeMhZy92GVQRjiz4hxS18v0YyUzYG2e2H1rP9eQjg9hmXnlswjOvafs60xsqwDRAYgEAYvhmdSx2v0IT9s7yCb6js9UrRTFu6k76xZza3nJz76R/EZj9rAQRJUMLT40=
-  app: travelnotebook-master
+
