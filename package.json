@@ -43,6 +43,6 @@
   },
   "scripts": {
     "test": "bower install && grunt --verbose",
-    "start": "node ./bin/www"
+    "start": "bower install && node ./bin/www"
   }
 }
