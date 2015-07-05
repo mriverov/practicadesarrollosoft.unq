@@ -42,7 +42,8 @@
     "protractor": "^2.1.0"
   },
   "scripts": {
-    "test": "bower install && grunt --verbose",
-    "start": "bower install && node ./bin/www"
+    "test": "grunt --verbose",
+    "postinstall": "npm install bower && bower install",
+    "start": "node ./bin/www"
   }
 }
