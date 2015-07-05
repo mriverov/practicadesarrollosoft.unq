@@ -15,7 +15,9 @@ require('./models/Hotel');
 require('./models/PointOfInterest');
 require('./config/passport');
 
-mongoose.connect('mongodb://localhost/news');
+var connectionString = process.env.MONGOLAB_URI
+mongoose.connect(connectionString || 'mongodb://localhost/news');
+//mongoose.connect('mongodb://localhost/news');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
