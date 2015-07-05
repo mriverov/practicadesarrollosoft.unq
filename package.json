@@ -43,6 +43,7 @@
   },
   "scripts": {
     "test": "bower install && grunt --verbose",
-    "start": "bower install && node ./bin/www"
+    "postinstall": "grunt bower-install-simple",
+    "start": "node ./bin/www"
   }
 }
